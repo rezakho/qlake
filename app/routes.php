@@ -24,6 +24,17 @@ Route::group('/', function()
 Route::get('action/{name}', 'HomeController');
 Route::get('سلام', 'HomeController');
 
+Route::get('test', function(){
+	if(Cache::has('var')){
+		echo 'Cache Exists<br>';
+		print_r(Cache::get('var'));
+	}else{
+		echo 'Cache Not Exists!<br>';
+		Cache::set('var',array('name'=>'ali'),20);
+	}
+});
+
+
 
 
 

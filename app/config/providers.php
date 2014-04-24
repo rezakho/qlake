@@ -52,20 +52,12 @@ App::singleton('config', function()
  */
 App::singleton('cache', function()
 {
-	/*$driverClass = ucwords(strtolower(Config::get('cache.driver')));
-
-	$prefix = Config::get('cache.prefix');
-
-	$drivers = Config::get('cache.drivers');
-
-	$cache = new Framework\Cache\Cache();
-
-	$driver = new $driverClass($drivers[]);
-
-	$cache->setDriver();
-
-	$config->setLocalPath($localPath);
-
-	return $config;*/
+	$driverName = Config::get('cache.driver');
+	$className = "Framework\\Cache\\".ucfirst($driverName)."Cache";
+	$driver = new $className;
+	$cfgDrivers = Config::get("cache.drivers");
+	$driver->setConfig($cfgDrivers[$driverName]);
+	$cache = new Framework\Cache\Cache($driver);
+	return $cache;
 });
 

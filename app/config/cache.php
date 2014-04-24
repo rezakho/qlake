@@ -9,8 +9,10 @@ return [
 
 		'file' => [
 
-			'path' => _DIR_ . '/../storage/cache',
+			'path' => __DIR__ . '/../storage/cache',
 
+			'defaultCacheLifeTime'=>900, // lifetime unit is Second
+			
 		],
 
 		'database' => [
