@@ -113,7 +113,7 @@ class Interfacer
 
 }
 
-abstract class Route
+ class Route
 {
 	use Iwan;
 
@@ -140,6 +140,14 @@ Router::put($i);
 Router::put($i);
 Router::put($i);
 Router::put($i);
+
+
+$f = function ()
+{
+    
+};
+
+var_dump(get_class($f));
 
 //$r = new Router;
 //$r->patch();
