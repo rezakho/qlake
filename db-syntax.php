@@ -1,27 +1,33 @@
 <?php
 
 
-class DB
+class Query
 {
-	public $columns = [];
+	public $aggregate;
+
+	public $distinct = false;
+
+	public $columns;
 
 	public $from;
 
-	public $joins = [];
+	public $joins;
 
-	public $wheres = [];
+	public $wheres;
 
-	public $groups = [];
+	public $groups ;
 
-	public $havings = [];
+	public $havings;
 
-	public $orders = [];
+	public $orders;
 
 	public $limit;
 
 	public $offset;
 
-	public $unions = [];
+	public $unions;
+
+	public $lock;
 
 
 	public $sql;
@@ -34,14 +40,21 @@ class DB
 		'&', '|', '^', '<<', '>>',
 	];
 
-	public function __construct(Grammar $grammar)
+	public function __construct(Grammar $grammar = null)
 	{
-		$this->grammar = $grammar;
+		$this->grammar = $grammar ?: new Grammar;
 	}
 
 	public function select()
 	{
 		$this->columns = func_get_args() ?: ['*'];
+
+		return $this;
+	}
+
+	public function distinct()
+	{
+		$this->distinct = true;
 
 		return $this;
 	}
@@ -90,9 +103,9 @@ class DB
 		return $this;
 	}
 
-	public function from($table)
+	public function from($from)
 	{
-		$this->from = $table;
+		$this->from = $from;
 
 		return $this;
 	}
@@ -234,7 +247,7 @@ class Expression
 			}
 			elseif(is_object($arg0) && get_class($arg0) == 'Closure' )
 			{
-				$query = new DB;
+				$query = new Query;
 
 				call_user_func($arg0, $query);
 
@@ -251,7 +264,7 @@ class Expression
 
 			if(is_object($value) && get_class($value) == 'Closure')
 			{
-				$query = new DB;
+				$query = new Query;
 
 				call_user_func($value, $query);
 
@@ -273,15 +286,199 @@ class Operator
 	{
 		$this->operator = $operator;
 	}
+
+	public function getType()
+	{
+		return $this->operator;
+	}
 }
 
+class Grammar
+{
+	protected $wrapper = '`%s`';
 
-class MysqlGrammar
+	protected $selectComponents = [
+		'aggregate',
+		'columns',
+		'from',
+		'joins',
+		'wheres',
+		'groups',
+		'havings',
+		'orders',
+		'limit',
+		'offset',
+		'unions',
+		'lock',
+	];
+
+	protected function compileComponents(Query $query)
+	{
+		$sql = array();
+
+		foreach ($this->selectComponents as $component)
+		{
+			// To compile the query, we'll spin through each component of the query and
+			// see if that component exists. If it does we'll just call the compiler
+			// function for the component which is responsible for making the SQL.
+			if ( ! is_null($query->$component))
+			{
+				$method = 'compile'.ucfirst($component);
+
+				$sql[$component] = $this->$method($query, $query->$component);
+			}
+		}
+
+		return $sql;
+	}
+
+
+	public function compileColumns(Query $query)
+	{
+		$columns = empty($query->columns) ? '*' : implode(', ', $query->columns);
+
+		return 'SELECT ' . ($query->distinct ? 'DISTINCT ' : '') . $columns;
+	}
+
+	/*public function parseColumns($columns)
+	{
+		if(empty($columns))
+		{
+			return '*';
+		}
+
+		foreach($columns as $column)
+		{
+			if(trim($column) == '*')
+			{
+				break;
+			}
+			
+		}
+	}*/
+
+	public function compileFrom(Query $query)
+	{
+		if(is_string($query->from))
+		{
+			return 'FROM ' . $this->wrapperTable($query->from);
+		}
+		elseif ($query->from instanceof Closure)
+		{
+			$subQuery = new Query;
+
+			call_user_func_array($query->from, [$subQuery]);
+
+			//return 'FROM (' . $subQuery->toSql() . ') AS ' . $this->wrapperTable($subQuery->from) . ' ';
+			return 'FROM (' . $subQuery->toSql() . ')';
+		}
+
+		
+	}
+
+	public function compileJoins()
+	{
+		
+	}
+
+	public function compileWheres(Query $query)
+	{
+		$wheres = $query->wheres;
+
+		$sql = [];
+
+		foreach ($wheres as $where)
+		{
+			if ($where instanceof Expression)
+			{
+				switch ($where->type) {
+					case 'raw':
+						$sql[] = $where->clause;
+						break;
+
+					case 'disjunct':
+						
+						if(!$where->clause['value'] instanceof Query)
+						{
+							$sql[] = $where->clause['field'] . ' ' . $where->clause['operator'] . ' ' . $this->wrapperValue($where->clause['value']);
+						}
+						break;
+
+					case 'builder':
+						//$sql[] = $where->clause[0] . $where->clause[1] . $this->wrapperValue($where->clause[2]);
+						break;
+					
+					default:
+						# code...
+						break;
+				}
+			}
+			elseif (($operator = $where) instanceof Operator)
+			{
+				$sql[] = $operator->getType();
+			}
+		}
+
+		return 'WHERE ' . implode(' ', $sql);
+	}
+	
+	public function compileGroups()
+	{
+		
+	}
+
+	public function compileHavings()
+	{
+		
+	}
+
+	public function compileOrders(Query $query)
+	{
+		$orders = [];
+
+		foreach ($query->orders as $order)
+		{
+			$orders[] = $order['field'] . ' ' . $order['type'];
+		}
+
+		return 'ORDER BY ' . implode(', ', $orders);
+	}
+
+	public function compileUnions()
+	{
+		
+	}
+
+
+	public function wrapperTable($table)
+	{
+		return sprintf($this->wrapper, $table);
+	}
+
+	public function wrapperColumn($column)
+	{
+		return sprintf($this->wrapper, $column);
+	}
+
+	public function wrapperValue($value)
+	{
+		return is_string($value) ? "'" . $value . "'" : $value;
+	}
+
+	public function compile($query)
+	{
+		return implode(' ', $this->compileComponents($query));
+	}
+}
+
+class MysqlGrammar extends Grammar
 {
 
 }
 
-$db = DB::table('user')
+/*
+$db = DB::select('id', 'name')
+->from('user')
 ->where('username', '=', 'ali')
 ->and('id >= 45')
 ->and('id', '>', 1)
@@ -299,7 +496,34 @@ $db = DB::table('user')
 ->orderBy('id')
 ->orderDescBy('name');
 
+DB::select('COUNT(*)')->from(function($query){
+	$query->select('id')->from('table')->where('id', '>=', 10);
+});
+*/
+
+
+
+$db = new Query;
+
+$db->select('COUNT(*) AS num')
+//->distinct()
+->from(function($query){
+	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id');
+})
+->where('username', '=', 'ali')
+->and('id >= 45')
+->and('id', '>', 1)
+->and(function($query){
+	$query->where('id', '<', '1')->or('old', '=', 45);
+})
+->and('id', 'in', function($query){
+	$query->select('id')->from('table')->where('id', '>', 10)->limit(10);
+})
+->orderBy('id')
+->orderDescBy('name');
+
 echo '<pre>';
+echo $db->toSql() . '<br/>';
 print_r($db);
 
 
