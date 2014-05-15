@@ -47,7 +47,7 @@ class Query
 
 	public function select()
 	{
-		$this->columns = func_get_args() ?: ['*'];
+		$this->columns = func_get_args();
 
 		return $this;
 	}
@@ -61,7 +61,7 @@ class Query
 
 	public function where()
 	{
-		if($this->block == 'where')
+		if ($this->block == 'where')
 		{
 			throw new ClearException("Just one 'Where' clause can be use.", 4);
 		}
@@ -143,7 +143,7 @@ class Query
 
 	public function having()
 	{
-		if($this->block == 'having')
+		if ($this->block == 'having')
 		{
 			throw new ClearException("Just one 'Having' clause can be use.", 4);
 		}
@@ -198,30 +198,37 @@ class Query
 		switch($method)
 		{
 			case 'and':
-				if($this->block == 'where')
+
+				if ($this->block == 'where')
 				{
 					return call_user_func_array([$this, 'andWhere'], $args);
 				}
-				elseif($this->block == 'having')
+				elseif ($this->block == 'having')
 				{
 					return call_user_func_array([$this, 'andHaving'], $args);
 				}
 
+				throw new ClearException("'and' method must be used after 'where, having' methods.", 4);
+
 				break;
 
 			case 'or':
-				if($this->block == 'where')
+
+				if ($this->block == 'where')
 				{
 					return call_user_func_array([$this, 'orWhere'], $args);
 				}
-				elseif($this->block == 'having')
+				elseif ($this->block == 'having')
 				{
 					return call_user_func_array([$this, 'orHaving'], $args);
 				}
 
+				throw new ClearException("'or' method must be used after 'where, having' methods.", 4);
+
 				break;
 
 			default:
+
 				break;
 		}
 	}
@@ -237,15 +244,15 @@ class Expression
 	{
 		$arg0 = func_get_arg(0);
 
-		if(func_num_args() == 1)
+		if (func_num_args() == 1)
 		{
-			if(is_string($arg0))
+			if (is_string($arg0))
 			{
 				$this->type = 'raw';
 
 				$this->clause = $arg0;
 			}
-			elseif(is_object($arg0) && get_class($arg0) == 'Closure' )
+			elseif (is_object($arg0) && get_class($arg0) == 'Closure' )
 			{
 				$query = new Query;
 
@@ -256,13 +263,13 @@ class Expression
 				$this->clause = $query;
 			}
 		}
-		elseif(func_num_args() == 3)
+		elseif (func_num_args() == 3)
 		{
 			list($field, $operator, $value) = func_get_args();
 
 			$this->type = 'disjunct';
 
-			if(is_object($value) && get_class($value) == 'Closure')
+			if (is_object($value) && get_class($value) == 'Closure')
 			{
 				$query = new Query;
 
@@ -391,17 +398,21 @@ class Grammar
 		{
 			if ($where instanceof Expression)
 			{
-				switch ($where->type) {
+				switch ($where->type)
+				{
 					case 'raw':
+
 						$sql[] = $where->clause;
+
 						break;
 
 					case 'disjunct':
 						
-						if(!$where->clause['value'] instanceof Query)
+						if (!$where->clause['value'] instanceof Query)
 						{
 							$sql[] = $where->clause['field'] . ' ' . $where->clause['operator'] . ' ' . $this->wrapperValue($where->clause['value']);
 						}
+
 						break;
 
 					case 'builder':
@@ -427,9 +438,49 @@ class Grammar
 		
 	}
 
-	public function compileHavings()
+	public function compileHavings(Query $query)
 	{
-		
+		$havings = $query->havings;
+
+		$sql = [];
+
+		foreach ($havings as $having)
+		{
+			if ($having instanceof Expression)
+			{
+				switch ($having->type)
+				{
+					case 'raw':
+
+						$sql[] = $having->clause;
+
+						break;
+
+					case 'disjunct':
+						
+						if (!$having->clause['value'] instanceof Query)
+						{
+							$sql[] = $having->clause['field'] . ' ' . $having->clause['operator'] . ' ' . $this->wrapperValue($having->clause['value']);
+						}
+
+						break;
+
+					case 'builder':
+						//$sql[] = $having->clause[0] . $having->clause[1] . $this->wrapperValue($having->clause[2]);
+						break;
+					
+					default:
+						# code...
+						break;
+				}
+			}
+			elseif (($operator = $having) instanceof Operator)
+			{
+				$sql[] = $operator->getType();
+			}
+		}
+
+		return 'HAVING ' . implode(' ', $sql);
 	}
 
 	public function compileOrders(Query $query)
@@ -519,6 +570,8 @@ $db->select('COUNT(*) AS num')
 ->and('id', 'in', function($query){
 	$query->select('id')->from('table')->where('id', '>', 10)->limit(10);
 })
+->having('COUNT(id)', '>', 10)
+->or('COUNT(id)', '=', '100')
 ->orderBy('id')
 ->orderDescBy('name');
 
