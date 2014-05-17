@@ -15,7 +15,7 @@ class Query
 
 	public $wheres;
 
-	public $groups ;
+	public $groups;
 
 	public $havings;
 
@@ -185,6 +185,31 @@ class Query
 		return $this;
 	}
 
+	public function limit()
+	{
+		if (func_num_args() == 1)
+		{
+			$count = func_get_arg(0);
+		}
+		elseif (func_num_args() == 2)
+		{
+			$count = func_get_arg(1);
+
+			$this->offset = func_get_arg(0);
+		}
+
+		$this->limit = $count;
+
+		return $this;
+	}
+
+	public function offset($offset)
+	{
+		$this->offset = $offset;
+
+		return $this;
+	}
+
 	public static function table($table)
 	{
 		$query = new static;
@@ -342,7 +367,7 @@ class Grammar
 
 	public function compileColumns(Query $query)
 	{
-		$columns = empty($query->columns) ? '*' : implode(', ', $query->columns);
+		$columns = is_null($query->columns) ? '*' : implode(', ', $query->columns);
 
 		return 'SELECT ' . ($query->distinct ? 'DISTINCT ' : '') . $columns;
 	}
@@ -416,7 +441,9 @@ class Grammar
 						break;
 
 					case 'builder':
-						//$sql[] = $where->clause[0] . $where->clause[1] . $this->wrapperValue($where->clause[2]);
+
+						$sql[] = '(' . substr($this->compileWheres($where->clause), 6) . ')';
+
 						break;
 					
 					default:
@@ -466,6 +493,8 @@ class Grammar
 						break;
 
 					case 'builder':
+
+						$sql[] = '(' . substr($this->compileHavings($having->clause), 6) . ')';
 						//$sql[] = $having->clause[0] . $having->clause[1] . $this->wrapperValue($having->clause[2]);
 						break;
 					
@@ -493,6 +522,16 @@ class Grammar
 		}
 
 		return 'ORDER BY ' . implode(', ', $orders);
+	}
+
+	public function compileLimit(Query $query)
+	{
+		return 'LIMIT ' . $query->limit;
+	}
+
+	public function compileOffset(Query $query)
+	{
+		return 'OFFSET ' . $query->offset;
 	}
 
 	public function compileUnions()
@@ -559,9 +598,11 @@ $db = new Query;
 $db->select('COUNT(*) AS num')
 //->distinct()
 ->from(function($query){
-	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id');
+	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id')->limit(2);
 })
 ->where('username', '=', 'ali')
+->limit(10)
+->offset(55);/*
 ->and('id >= 45')
 ->and('id', '>', 1)
 ->and(function($query){
@@ -574,10 +615,10 @@ $db->select('COUNT(*) AS num')
 ->or('COUNT(id)', '=', '100')
 ->orderBy('id')
 ->orderDescBy('name');
-
+*/
 echo '<pre>';
 echo $db->toSql() . '<br/>';
-print_r($db);
+//print_r($db);
 
 
 
