@@ -131,7 +131,7 @@ class FileCache implements CacheDriverInterface
 
 	
 
-	public function remember($key, $value, $expirtion=false)
+	public function remember($key, $value, $expiration=false)
 	{
 		if (gettype($value) == 'object' || gettype($value) == 'resource')
 		{
@@ -144,7 +144,7 @@ class FileCache implements CacheDriverInterface
 		}
 		else
 		{
-			$this->set($key, $value, $expirtion);
+			$this->set($key, $value, $expiration);
 
 			return $value;
 		}
