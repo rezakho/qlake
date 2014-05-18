@@ -522,7 +522,7 @@ class Grammar
 			default:
 
 				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value);
-				
+
 				break;
 		}
 	}
@@ -731,18 +731,18 @@ DB::select('COUNT(*)')->from(function($query){
 $db = new Query;
 
 $db->select('COUNT(*) AS num')
-//->distinct()
-//->from(function($query){
-//	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id')->limit(2);
-//})
+->distinct()
+->from(function($query){
+	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id')->limit(2);
+})
 ->where('username', '=', 'ali')
-//->limit(10)
-//->offset(55);
-//->and('id >= 45')
-//->and('id', '>', 1)
-//->and(function($query){
-//	$query->where('id', '<', '1')->or('old', '=', 45);
-//})
+->limit(10)
+->offset(55)
+->and('id >= 45')
+->and('id', '>', 1)
+->and(function($query){
+	$query->where('id', '<', '1')->or('old', '=', 45);
+})
 ->and('id', 'not in', '1,2,3')
 ->and('id', 'not like', '1%')
 ->and('id', 'not in', [1,2,'3'])
@@ -750,10 +750,10 @@ $db->select('COUNT(*) AS num')
 	$query->select('id')->from('table')->where('id', '>', 10)->and('id', 'between', [1,252])->limit(10);
 })
 
-//->having('COUNT(id)', '>', 10)
-//->or('COUNT(id)', '=', '100')
-//->orderBy('id')
-//->orderDescBy('name');
+->having('COUNT(id)', '>', 10)
+->or('COUNT(id)', '=', '100')
+->orderBy('id')
+->orderDescBy('name')
 ;
 /**/
 echo '<pre>';
