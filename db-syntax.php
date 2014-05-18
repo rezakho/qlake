@@ -35,9 +35,10 @@ class Query
 	public $block;
 
 	protected $operators = [
-		'=', '<', '>', '<=', '>=', '<>', '!=',
-		'LIKE', 'NOT LIKE', 'BETWEEN', 'ILIKE',
-		'&', '|', '^', '<<', '>>',
+		'=', '<', '>', '<=', '>=', '<>', '!=', '&', '|',
+		'^', '<<', '>>',
+		'IS NULL', 'IS NOT NULL',
+		'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
 	];
 
 	public function __construct(Grammar $grammar = null)
@@ -427,16 +428,13 @@ class Grammar
 				{
 					case 'raw':
 
-						$sql[] = $where->clause;
+						$sql[] = $this->compileRawWhere($where);
 
 						break;
 
 					case 'disjunct':
 						
-						if (!$where->clause['value'] instanceof Query)
-						{
-							$sql[] = $where->clause['field'] . ' ' . $where->clause['operator'] . ' ' . $this->wrapperValue($where->clause['value']);
-						}
+						$sql[] = $this->compileBasicWhere($where);
 
 						break;
 
@@ -460,6 +458,143 @@ class Grammar
 		return 'WHERE ' . implode(' ', $sql);
 	}
 	
+	public function compileRawWhere($where)
+	{
+		return $where->clause;
+	}
+
+	public function compileBasicWhere($where)
+	{
+		$field = $where->clause['field'];
+
+		// fix spaces and do uppercase operator
+		$operator = strtoupper(trim(preg_replace('/\\s/', ' ', $where->clause['operator'])));
+
+		$value = $where->clause['value'];
+
+		/*if (!$where->clause['value'] instanceof Query)
+		{
+			$sql[] = $where->clause['field'] . ' ' . $where->clause['operator'] . ' ' . $this->wrapperValue($where->clause['value']);
+		}*/
+
+		switch ($operator)
+		{
+			case '=':
+			case '<':
+			case '>':
+			case '<=':
+			case '>=':
+			case '<>':
+			case '!=':
+			case '&':
+			case '|':
+				
+				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value);
+
+				break;
+
+			case 'IN':
+
+				return $this->compileInWhere($where);
+
+				break;
+
+			case 'NOT IN':
+
+				return $this->compileNotInWhere($where);
+
+				break;
+
+			case 'LIKE':
+			case 'NOT LIKE':
+
+				return $field . ' ' . $operator . ' ' . $this->wrapperValue((string)$value);			case 'LIKE':
+
+				break;
+
+			case 'BETWEEN':
+			case 'NOT BETWEEN':
+
+				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value[0]) . ' AND ' . $this->wrapperValue($value[1]);
+
+				break;
+
+			default:
+
+				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value);
+				
+				break;
+		}
+	}
+
+	public function compileNestedWhere(Query $query)
+	{
+		
+	}
+
+	public function compileSubQueryWhere(Query $query)
+	{
+		
+	}
+
+	public function compileExistsWhere(Query $query)
+	{
+		
+	}
+
+	public function compileNotExistsWhere(Query $query)
+	{
+		
+	}
+
+	public function compileInWhere($where, $operator = 'IN')
+	{
+		$field = $where->clause['field'];
+
+		//$operator = strtoupper(trim($where->clause['operator']));
+
+		$value = $where->clause['value'];
+
+		if (is_string($value))
+		{
+			$sql =  $field . " $operator (" . $value . ')';
+		}
+		elseif (is_array($value))
+		{
+			$self = $this;
+
+			$sql = $field . " $operator (" . implode(', ', array_map(function($v){
+				return $this->wrapperValue($v);
+			}, $value)) . ')';
+		}
+		elseif ($value instanceof Query)
+		{
+			$sql = $field . " $operator (" . $value->toSql() . ')';
+		}
+
+		return $sql;
+	}
+
+	public function compileNotInWhere($where)
+	{
+		return $this->compileInWhere($where, 'NOT IN');
+	}
+
+	public function compileBetweenWhere(Query $query)
+	{
+		
+	}
+
+	public function compileIsNullWhere(Query $query)
+	{
+		
+	}
+
+	public function compileIsNotNullWhere(Query $query)
+	{
+		
+	}
+
 	public function compileGroups()
 	{
 		
@@ -597,25 +732,30 @@ $db = new Query;
 
 $db->select('COUNT(*) AS num')
 //->distinct()
-->from(function($query){
-	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id')->limit(2);
-})
+//->from(function($query){
+//	$query->select('id')->from('table')->where('id', '>=', 10)->orderBy('id')->limit(2);
+//})
 ->where('username', '=', 'ali')
-->limit(10)
-->offset(55);/*
-->and('id >= 45')
-->and('id', '>', 1)
-->and(function($query){
-	$query->where('id', '<', '1')->or('old', '=', 45);
+//->limit(10)
+//->offset(55);
+//->and('id >= 45')
+//->and('id', '>', 1)
+//->and(function($query){
+//	$query->where('id', '<', '1')->or('old', '=', 45);
+//})
+->and('id', 'not in', '1,2,3')
+->and('id', 'not like', '1%')
+->and('id', 'not in', [1,2,'3'])
+->and('id', 'not in', function($query){
+	$query->select('id')->from('table')->where('id', '>', 10)->and('id', 'between', [1,252])->limit(10);
 })
-->and('id', 'in', function($query){
-	$query->select('id')->from('table')->where('id', '>', 10)->limit(10);
-})
-->having('COUNT(id)', '>', 10)
-->or('COUNT(id)', '=', '100')
-->orderBy('id')
-->orderDescBy('name');
-*/
+
+//->having('COUNT(id)', '>', 10)
+//->or('COUNT(id)', '=', '100')
+//->orderBy('id')
+//->orderDescBy('name');
+;
+/**/
 echo '<pre>';
 echo $db->toSql() . '<br/>';
 //print_r($db);
