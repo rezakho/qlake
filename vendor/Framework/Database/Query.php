@@ -2,7 +2,7 @@
 
 namespace Framework\Database;
 
-class QueryBuilder
+class Query
 {
 	public $aggregate;
 
