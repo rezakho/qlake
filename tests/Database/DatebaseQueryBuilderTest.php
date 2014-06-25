@@ -11,7 +11,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM `table`', $sql);
 	}
 
-	public function testColumnsSelect()
+	public function testSimpleColumnsSelect()
 	{
 		$query = $this->getQuery();
 
@@ -19,6 +19,24 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals('SELECT `id`, `name` FROM `table`', $sql);
 	}
+
+	public function testAliasedColumnsSelect()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('family AS f')->from('table')->toSql();
+
+		$this->assertEquals('SELECT family AS f FROM `table`', $sql);
+	}
+
+	/*public function testAggregatedColumnsSelect()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('COUNT(*)')->from('table')->toSql();
+
+		$this->assertEquals('SELECT COUNT(*) FROM `table`', $sql);
+	}*/
 
 	public function getQuery()
 	{
