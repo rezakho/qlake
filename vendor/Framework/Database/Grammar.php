@@ -27,9 +27,6 @@ class Grammar
 
 		foreach ($this->selectComponents as $component)
 		{
-			// To compile the query, we'll spin through each component of the query and
-			// see if that component exists. If it does we'll just call the compiler
-			// function for the component which is responsible for making the SQL.
 			if ( ! is_null($query->$component))
 			{
 				$method = 'compile'.ucfirst($component);
@@ -44,27 +41,39 @@ class Grammar
 
 	public function compileColumns(Query $query)
 	{
-		$columns = is_null($query->columns) ? '*' : implode(', ', $query->columns);
+		if (is_array($query->columns))
+		{
+			$columns = [];
+
+			foreach ($query->columns as $value)
+			{
+				$columns[] = $this->parseColumn($value);
+			}
+		}
+
+		$columns = is_null($query->columns) ? '*' : implode(', ', $columns);
 
 		return 'SELECT ' . ($query->distinct ? 'DISTINCT ' : '') . $columns;
 	}
 
-	/*public function parseColumns($columns)
+	public function parseColumn($column)
 	{
-		if(empty($columns))
+		$column = trim($column);
+
+		if ($column == '*')
 		{
 			return '*';
 		}
 
-		foreach($columns as $column)
+		if (strpos($column, ' '))
 		{
-			if(trim($column) == '*')
-			{
-				break;
-			}
-			
+			return $column;
 		}
-	}*/
+		else
+		{
+			return $this->wrapperColumn($column);
+		}
+	}
 
 	public function compileFrom(Query $query)
 	{

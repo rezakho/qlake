@@ -11,7 +11,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM `table`', $sql);
 	}
 
-	public function testColumnSelect()
+	public function testColumnsSelect()
 	{
 		$query = $this->getQuery();
 
