@@ -100,8 +100,8 @@ class View
 			}
 
 			ob_start();
-	        require $path . '/' . $viewFile;
-	        return ob_get_clean();
+			require $path . '/' . $viewFile;
+			return ob_get_clean();
 
 		};
 
