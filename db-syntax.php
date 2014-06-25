@@ -508,7 +508,7 @@ class Grammar
 			case 'LIKE':
 			case 'NOT LIKE':
 
-				return $field . ' ' . $operator . ' ' . $this->wrapperValue((string)$value);			case 'LIKE':
+				return $field . ' ' . $operator . ' ' . $this->wrapperValue((string)$value);
 
 				break;
 

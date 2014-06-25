@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'driver' => 'mongo',
+	'driver' => 'file',
 
 	'prefix' => '',
 
@@ -39,6 +39,7 @@ return [
 			'password' => null,
 
 			'database' => 'cachedb',
+			
 			'collection' => 'testcollection',
 
 			'defaultCacheLifeTime'=>900, // lifetime unit is Second
