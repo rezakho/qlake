@@ -119,7 +119,7 @@ class Query
 
 	public function orderBy($field)
 	{
-		$this->orders[] = ['field' => $field, 'type' => 'ACS'];
+		$this->orders[] = ['field' => $field, 'type' => 'ASC'];
 
 		return $this;
 	}

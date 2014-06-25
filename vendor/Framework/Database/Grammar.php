@@ -69,6 +69,10 @@ class Grammar
 		{
 			return $column;
 		}
+		elseif (strpos($column, '('))
+		{
+			return $column;
+		}
 		else
 		{
 			return $this->wrapperColumn($column);
@@ -77,11 +81,11 @@ class Grammar
 
 	public function compileFrom(Query $query)
 	{
-		if(is_string($query->from))
+		if (is_string($query->from))
 		{
 			return 'FROM ' . $this->wrapperTable($query->from);
 		}
-		elseif ($query->from instanceof Closure)
+		elseif ($query->from instanceof \Closure)
 		{
 			$subQuery = new Query;
 
@@ -90,8 +94,6 @@ class Grammar
 			//return 'FROM (' . $subQuery->toSql() . ') AS ' . $this->wrapperTable($subQuery->from) . ' ';
 			return 'FROM (' . $subQuery->toSql() . ')';
 		}
-
-		
 	}
 
 	public function compileJoins()
@@ -338,7 +340,7 @@ class Grammar
 
 		foreach ($query->orders as $order)
 		{
-			$orders[] = $order['field'] . ' ' . $order['type'];
+			$orders[] = $this->wrapperColumn($order['field']) . ' ' . $order['type'];
 		}
 
 		return 'ORDER BY ' . implode(', ', $orders);

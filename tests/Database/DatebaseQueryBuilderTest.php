@@ -6,9 +6,9 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 	{
 		$query = $this->getQuery();
 
-		$sql = $query->select('*')->from('table')->toSql();
+		$sql = $query->select('*', 'id')->from('table')->toSql();
 
-		$this->assertEquals('SELECT * FROM `table`', $sql);
+		$this->assertEquals('SELECT *, `id` FROM `table`', $sql);
 	}
 
 	public function testSimpleColumnsSelect()
@@ -29,14 +29,88 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT family AS f FROM `table`', $sql);
 	}
 
-	/*public function testAggregatedColumnsSelect()
+	public function testAggregatedColumnsSelect()
 	{
 		$query = $this->getQuery();
 
 		$sql = $query->select('COUNT(*)')->from('table')->toSql();
 
 		$this->assertEquals('SELECT COUNT(*) FROM `table`', $sql);
-	}*/
+	}
+
+	public function testComplexColumnsSelect()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('id', 'family AS f', 'COUNT(id)', '*')->from('table')->toSql();
+
+		$this->assertEquals('SELECT `id`, family AS f, COUNT(id), * FROM `table`', $sql);
+	}
+
+	public function testDistinctSelect()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->distinct()->from('table')->toSql();
+
+		$this->assertEquals('SELECT DISTINCT * FROM `table`', $sql);
+	}
+
+	public function testClosureFrom()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from(function($subQuery){
+			$subQuery->select('id')->from('table');
+		})->toSql();
+
+		$this->assertEquals('SELECT * FROM (SELECT `id` FROM `table`)', $sql);
+	}
+
+	public function testLimitByOnParameter()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->limit(1)->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` LIMIT 1', $sql);
+	}
+
+	public function testLimitByTwoParameter()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->limit(1, 10)->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` LIMIT 10 OFFSET 1', $sql);
+	}
+
+	public function testOffset()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->limit(10)->offset(1)->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` LIMIT 10 OFFSET 1', $sql);
+	}
+
+	public function testOrderBy()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->orderBy('id')->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` ORDER BY `id` ASC', $sql);
+
+		//
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->orderDescBy('id')->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` ORDER BY `id` DESC', $sql);
+	}
+
+
 
 	public function getQuery()
 	{
