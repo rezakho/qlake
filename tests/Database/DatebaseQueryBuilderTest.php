@@ -110,6 +110,82 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals('SELECT * FROM `table` ORDER BY `id` DESC', $sql);
 	}
 
+	public function testRawWhere()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->where('id = 12')->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` WHERE id = 12', $sql);
+	}
+
+	public function testDisjunctWhereComparisonOperators()
+	{
+		$operators = [
+			'=', '<', '>', '<=', '>=', '<>', '!=', 
+		];
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator, 12)->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} 12", $sql);
+		}
+	}
+
+	public function testDisjunctWhereIsNullOperators($value='')
+	{
+		$operators = [
+			'IS NULL', 'IS NOT NULL',
+		];
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator)->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator}", $sql);
+		}
+
+	}
+
+	/*public function testDisjunctWhereIsNullOperators($value='')
+	{
+		$operators = [
+			'IS NULL', 'IS NOT NULL',
+			//'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
+		];
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator, 12)->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} 121", $sql);
+		}
+
+	}*/
+
+	/*public function testBasicWhere()
+	{
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->where('id', '=', 12)->toSql();
+
+		$this->assertEquals('SELECT * FROM `table` WHERE `id` = 12', $sql);
+
+		//
+		$query = $this->getQuery();
+
+		$sql = $query->select('*')->from('table')->where('id', '>')->toSql();
+
+		//$this->assertEquals('SELECT * FROM `table` ORDER BY `id` DESC', $sql);
+	}*/
+
 
 
 	public function getQuery()

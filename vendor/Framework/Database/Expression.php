@@ -12,6 +12,7 @@ class Expression
 	{
 		$arg0 = func_get_arg(0);
 
+		// Basic raw and closure where
 		if (func_num_args() == 1)
 		{
 			if (is_string($arg0))
@@ -31,6 +32,18 @@ class Expression
 				$this->clause = $query;
 			}
 		}
+		// disjunct where by 1 operand
+		elseif (func_num_args() == 2)
+		{
+			list($field, $operator) = func_get_args();
+
+			$this->type = 'disjunct';
+			
+			$value = null;
+
+			$this->clause = compact('field', 'operator', 'value');
+		}
+		// disjunct where by 2 operands
 		elseif (func_num_args() == 3)
 		{
 			list($field, $operator, $value) = func_get_args();

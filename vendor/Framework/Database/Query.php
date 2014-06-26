@@ -36,8 +36,8 @@ class Query
 	public $block;
 
 	protected $operators = [
-		'=', '<', '>', '<=', '>=', '<>', '!=', '&', '|',
-		'^', '<<', '>>',
+		'=', '<', '>', '<=', '>=', '<>', '!=',
+		/*'&', '|', '^', '<<', '>>',*/
 		'IS NULL', 'IS NOT NULL',
 		'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
 	];
@@ -63,12 +63,12 @@ class Query
 
 	public function where()
 	{
-		if ($this->block == 'where')
+		/*if ($this->block == 'where')
 		{
 			throw new ClearException("Just one 'Where' clause can be use.", 4);
 		}
 
-		$this->block = 'where';
+		$this->block = 'where';*/
 
 		$expression = new Expression();
 

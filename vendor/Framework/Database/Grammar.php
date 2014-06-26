@@ -173,10 +173,20 @@ class Grammar
 			case '>=':
 			case '<>':
 			case '!=':
-			case '&':
-			case '|':
 				
-				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value);
+				return $this->wrapperColumn($field) . ' ' . $operator . ' ' . $this->wrapperValue($value);
+
+				break;
+
+			case 'IS NULL':
+
+				return $this->compileIsNullWhere($where);
+
+				break;
+
+			case 'IS NOT NULL':
+
+				return $this->compileIsNotNullWhere($where);
 
 				break;
 
@@ -207,8 +217,8 @@ class Grammar
 				break;
 
 			default:
-
-				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value);
+exit($operator);
+				return $this->wrapperColumn($field) . ' ' . $operator . ' ' . $this->wrapperValue($value);
 
 				break;
 		}
@@ -272,14 +282,16 @@ class Grammar
 		
 	}
 
-	public function compileIsNullWhere(Query $query)
+	public function compileIsNullWhere($where, $operator = 'IS NULL')
 	{
-		
+		$field = $where->clause['field'];
+
+		return $sql = $this->wrapperColumn($field) . " $operator";
 	}
 
-	public function compileIsNotNullWhere(Query $query)
+	public function compileIsNotNullWhere($where)
 	{
-		
+		return $this->compileIsNullWhere($where, 'IS NOT NULL');	
 	}
 
 	public function compileGroups()
