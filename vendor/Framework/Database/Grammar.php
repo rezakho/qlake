@@ -246,7 +246,7 @@ exit($operator);
 
 	public function compileInWhere($where, $operator = 'IN')
 	{
-		$field = $where->clause['field'];
+		$field = $this->wrapperColumn($where->clause['field']);
 
 		//$operator = strtoupper(trim($where->clause['operator']));
 

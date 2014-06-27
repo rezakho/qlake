@@ -8,4 +8,4 @@ The beta release coming soon!
 
 #### Contributing
 
-Frok the "master" branch, edit it and send pull requests to "masater" branch again.
+Frok the "master" branch, edit it and send pull requests to "master" branch again.

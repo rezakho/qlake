@@ -135,7 +135,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 		}
 	}
 
-	public function testDisjunctWhereIsNullOperators($value='')
+	public function testDisjunctWhereIsNullOperators()
 	{
 		$operators = [
 			'IS NULL', 'IS NOT NULL',
@@ -148,6 +148,46 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 			$sql = $query->select('*')->from('table')->where('id', $operator)->toSql();
 
 			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator}", $sql);
+		}
+
+	}
+
+
+
+	public function testDisjunctWhereInOperators()
+	{
+		$operators = [
+			'IN', 'NOT IN',
+		];
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator, '1,2,3')->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} (1,2,3)", $sql);
+		}
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator, [1,2,'3'])->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} (1, 2, '3')", $sql);
+		}
+
+		foreach ($operators as $operator)
+		{
+			$query = $this->getQuery();
+
+			$sql = $query->select('*')->from('table')->where('id', $operator, function($query)
+			{
+				$query->select('pid')->from('innertable');
+			})->toSql();
+
+			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} (SELECT `pid` FROM `innertable`)", $sql);
 		}
 
 	}
