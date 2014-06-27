@@ -178,17 +178,17 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} (1, 2, '3')", $sql);
 		}
 
-		/*foreach ($operators as $operator)
+		foreach ($operators as $operator)
 		{
 			$query = $this->getQuery();
 
-			$sql = $query->select('*')->from('table')->where('id', $operator, function($query)
+			$sql = $query->select('*')->from('table')->where('id', $operator, function($subQuery)
 			{
-				$query->select('pid')->from('innertable');
+				$subQuery->select('pid')->from('innertable');
 			})->toSql();
 
 			$this->assertEquals("SELECT * FROM `table` WHERE `id` {$operator} (SELECT `pid` FROM `innertable`)", $sql);
-		}*/
+		}/**/
 
 	}
 
