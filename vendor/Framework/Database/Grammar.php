@@ -47,7 +47,7 @@ class Grammar
 
 			foreach ($query->columns as $value)
 			{
-				$columns[] = $this->parseColumn($value);
+				$columns[] = $this->parseFieldName($value);
 			}
 		}
 
@@ -56,7 +56,7 @@ class Grammar
 		return 'SELECT ' . ($query->distinct ? 'DISTINCT ' : '') . $columns;
 	}
 
-	public function parseColumn($column)
+	public function parseFieldName($column)
 	{
 		$column = trim($column);
 
@@ -150,19 +150,18 @@ class Grammar
 		return $where->clause;
 	}
 
+	public function correctOperator($operator)
+	{
+		return strtoupper(trim(preg_replace('/\\s+/', ' ', $operator)));
+	}
+
 	public function compileBasicWhere($where)
 	{
-		$field = $where->clause['field'];
+		$field    = $this->parseFieldName($where->clause['field']);
 
-		// fix spaces and do uppercase operator
-		$operator = strtoupper(trim(preg_replace('/\\s/', ' ', $where->clause['operator'])));
+		$operator = $this->correctOperator($where->clause['operator']);
 
-		$value = $where->clause['value'];
-
-		/*if (!$where->clause['value'] instanceof Query)
-		{
-			$sql[] = $where->clause['field'] . ' ' . $where->clause['operator'] . ' ' . $this->wrapperValue($where->clause['value']);
-		}*/
+		$value    = $this->parseValue($where->clause['value']);
 
 		switch ($operator)
 		{
@@ -172,56 +171,82 @@ class Grammar
 			case '<=':
 			case '>=':
 			case '<>':
-			case '!=':
-				
-				return $this->wrapperColumn($field) . ' ' . $operator . ' ' . $this->wrapperValue($value);
-
+			case '!=':		
+				return $this->compileComparisonOperationsWhere($field, $operator, $value);
 				break;
 
 			case 'IS NULL':
-
-				return $this->compileIsNullWhere($where);
-
+				return $this->compileIsNullWhere($field, $operator, $value);
 				break;
 
 			case 'IS NOT NULL':
-
-				return $this->compileIsNotNullWhere($where);
-
+				return $this->compileIsNotNullWhere($field, $operator, $value);
 				break;
 
 			case 'IN':
-
-				return $this->compileInWhere($where);
-
+				return $this->compileInWhere($field, $operator, $value);
 				break;
 
 			case 'NOT IN':
-
-				return $this->compileNotInWhere($where);
-
+				return $this->compileNotInWhere($field, $operator, $value);
 				break;
 
 			case 'LIKE':
+				return $this->compileLikeWhere($field, $operator, $value);
+				break;
+
 			case 'NOT LIKE':
-
-				return $field . ' ' . $operator . ' ' . $this->wrapperValue((string)$value);
-
+				return $this->compileNotLikeWhere($field, $operator, $value);
 				break;
 
 			case 'BETWEEN':
+				return $this->compileBetweenWhere($field, $operator, $value);
+				break;
+
 			case 'NOT BETWEEN':
-
-				return $field . ' ' . $operator . ' ' . $this->wrapperValue($value[0]) . ' AND ' . $this->wrapperValue($value[1]);
-
+				return $this->compileNotBetweenWhere($field, $operator, $value);
 				break;
 
 			default:
-exit($operator);
-				return $this->wrapperColumn($field) . ' ' . $operator . ' ' . $this->wrapperValue($value);
-
+				return $this->parseFieldName($field) . ' ' . $this->correctOperator($operator) . ' ' . $this->parseValue($value);
 				break;
 		}
+	}
+
+	public function compileComparisonOperationsWhere($field, $operator, $value)
+	{
+		return $field . ' ' . $operator . ' ' . $this->parseValue($value);
+	}
+
+	public function compileIsNullWhere($field, $operator, $value)
+	{
+		return $field . ' IS NULL';
+	}
+
+	public function compileIsNotNullWhere($field, $operator, $value)
+	{
+		return $field . ' IS NOT NULL';	
+	}
+
+	public function compileInWhere($field, $operator, $value)
+	{
+		if (is_array($value))
+		{
+			$self = $this;
+
+			$sql = $field . " $operator (" . implode(', ', $value) . ')';
+		}
+		elseif ($value instanceof Query)
+		{
+			$sql = $field . " $operator (" . $value->toSql() . ')';
+		}
+
+		return $sql;
+	}
+
+	public function compileNotInWhere($field, $operator, $value)
+	{
+		return $this->compileInWhere($field, 'NOT IN', $value);
 	}
 
 	public function compileNestedWhere(Query $query)
@@ -244,55 +269,11 @@ exit($operator);
 		
 	}
 
-	public function compileInWhere($where, $operator = 'IN')
+	public function compileBetweenWhere($field, $operator, $value)
 	{
-		$field = $this->wrapperColumn($where->clause['field']);
-
-		//$operator = strtoupper(trim($where->clause['operator']));
-
-		$value = $where->clause['value'];
-
-		if (is_string($value))
-		{
-			$sql =  $field . " $operator (" . $value . ')';
-		}
-		elseif (is_array($value))
-		{
-			$self = $this;
-
-			$sql = $field . " $operator (" . implode(', ', array_map(function($v){
-				return $this->wrapperValue($v);
-			}, $value)) . ')';
-		}
-		elseif ($value instanceof Query)
-		{
-			$sql = $field . " $operator (" . $value->toSql() . ')';
-		}
-
-		return $sql;
+		return $field . ' ' . $operator . ' ' . $value[0] . ' AND ' . $value[1];
 	}
 
-	public function compileNotInWhere($where)
-	{
-		return $this->compileInWhere($where, 'NOT IN');
-	}
-
-	public function compileBetweenWhere(Query $query)
-	{
-		
-	}
-
-	public function compileIsNullWhere($where, $operator = 'IS NULL')
-	{
-		$field = $where->clause['field'];
-
-		return $sql = $this->wrapperColumn($field) . " $operator";
-	}
-
-	public function compileIsNotNullWhere($where)
-	{
-		return $this->compileIsNullWhere($where, 'IS NOT NULL');	
-	}
 
 	public function compileGroups()
 	{
@@ -321,7 +302,7 @@ exit($operator);
 						
 						if (!$having->clause['value'] instanceof Query)
 						{
-							$sql[] = $having->clause['field'] . ' ' . $having->clause['operator'] . ' ' . $this->wrapperValue($having->clause['value']);
+							$sql[] = $having->clause['field'] . ' ' . $having->clause['operator'] . ' ' . $this->parseValue($having->clause['value']);
 						}
 
 						break;
@@ -329,7 +310,7 @@ exit($operator);
 					case 'builder':
 
 						$sql[] = '(' . substr($this->compileHavings($having->clause), 6) . ')';
-						//$sql[] = $having->clause[0] . $having->clause[1] . $this->wrapperValue($having->clause[2]);
+						//$sql[] = $having->clause[0] . $having->clause[1] . $this->parseValue($having->clause[2]);
 						break;
 					
 					default:
@@ -384,9 +365,29 @@ exit($operator);
 		return sprintf($this->wrapper, $column);
 	}
 
-	public function wrapperValue($value)
+	public function parseValue($value)
 	{
-		return is_string($value) ? "'" . $value . "'" : $value;
+		if (is_string($value))
+		{
+			return "'" . $value . "'";
+		}
+		elseif (is_numeric($value))
+		{
+			return $value;
+		}
+		elseif (is_array($value))
+		{
+			foreach ($value as $k => $v)
+			{
+				$value[$k] = is_string($v) ? "'" . $v . "'" : $v;
+			}
+
+			return $value;
+		}
+		elseif ($value instanceof Query)
+		{
+			return $value;
+		}
 	}
 
 	public function compile($query)

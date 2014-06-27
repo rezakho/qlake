@@ -31,13 +31,13 @@ class Query
 	public $lock;
 
 
-	public $sql;
+	protected $sql;
 
-	public $block;
+	protected $block;
 
 	protected $operators = [
 		'=', '<', '>', '<=', '>=', '<>', '!=',
-		/*'&', '|', '^', '<<', '>>',*/
+		//'&', '|', '^', '<<', '>>',
 		'IS NULL', 'IS NOT NULL',
 		'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
 	];
@@ -112,10 +112,10 @@ class Query
 		return $this;
 	}
 
-	/*public function table($table)
+	public function table($table)
 	{
 		return $this->from($table);
-	}*/
+	}
 
 	public function orderBy($field)
 	{
@@ -212,12 +212,12 @@ class Query
 		return $this;
 	}
 
-	public static function table($table)
+	/*public static function table($table)
 	{
 		$query = new static;
 
 		return $query->from($table);
-	}
+	}*/
 
 
 	public function __call($method, $args)

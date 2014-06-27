@@ -34,6 +34,11 @@ Route::get('test', function(){
 	}
 });
 
+Route::get('/', function(){
+	echo strtoupper(trim(preg_replace('/\\s+/', ' ', 'NoT         lIKE')));
+});
+
+
 
 
 

@@ -743,7 +743,6 @@ $db->select('COUNT(*) AS num')
 ->and(function($query){
 	$query->where('id', '<', '1')->or('old', '=', 45);
 })
-->and('id', 'not in', '1,2,3')
 ->and('id', 'not like', '1%')
 ->and('id', 'not in', [1,2,'3'])
 ->and('id', 'not in', function($query){
