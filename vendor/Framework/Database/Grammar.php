@@ -176,11 +176,11 @@ class Grammar
 				break;
 
 			case 'IS NULL':
-				return $this->compileIsNullWhere($field, $operator, $value);
+				return $this->compileIsNullWhere($field, $operator, $value = null);
 				break;
 
 			case 'IS NOT NULL':
-				return $this->compileIsNotNullWhere($field, $operator, $value);
+				return $this->compileIsNotNullWhere($field, $operator, $value = null);
 				break;
 
 			case 'IN':
