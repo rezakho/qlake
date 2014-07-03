@@ -1,5 +1,5 @@
 <?php
-    class Tag{
+    class Html{
         
         protected $url;
         protected $charset = 'UTF-8';
@@ -16,7 +16,7 @@
             return $this->charset;
         }
         
-        public function addStyle( $url , $attributes='' )
+        public function style( $url , $attributes='' )
         {
         	
             $defaults = array('href'=>'', 'rel' => 'stylesheet', 'type' => 'text/css','media' => 'all' );
@@ -40,7 +40,7 @@
         }
         
         
-        public function addScript( $url, $attributes='')
+        public function script( $url, $attributes='')
         {
         	
             $attributes['src'] = $url;
@@ -106,7 +106,7 @@
         public function password( $name='', $lable='', $attributs=[] )
         {
 
-            $attributs['type'] = 'password';
+            ( !empty( $type ) ) ? $attributs['type'] = $type : $attributs['type'] ='password';
 
             $attributs['name'] = $name;
 
@@ -114,10 +114,10 @@
 
         }
 
-        public function hidden( $name='', $value='' )
+        public function hidden( $name='', $value='', $attributs=[] )
         {
 
-            $attributs['type'] = 'hidden';
+            ( !empty( $type ) ) ? $attributs['type'] = $type : $attributs['type'] ='hidden';
 
             $attributs['value'] = $value;
 
