@@ -21,7 +21,7 @@ Route::group('/', function()
 	});
 });
 */
-Route::get('action/{name}', 'HomeController');
+Route::get('action/{name:\d+{}}', 'HomeController::indexAction')->name('profile.index');
 Route::get('سلام', 'HomeController');
 
 Route::get('test', function(){
@@ -34,9 +34,14 @@ Route::get('test', function(){
 	}
 });
 
-Route::get('/', function(){
-	echo strtoupper(trim(preg_replace('/\\s+/', ' ', 'NoT         lIKE')));
+Route::get('/', function()
+{
+	echo DB::select('*')->from('test')->all();
+
+	//Cache::get('var',array('name'=>'ali'),20);
 });
+
+
 
 
 

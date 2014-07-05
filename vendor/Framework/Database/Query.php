@@ -42,9 +42,16 @@ class Query
 		'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
 	];
 
-	public function __construct(Grammar $grammar = null)
+	public function __construct(Connection $connection, Grammar $grammar)
 	{
-		$this->grammar = $grammar ?: new Grammar;
+		$this->connection = $connection;
+
+		$this->grammar = $grammar;
+	}
+
+	public function newQuery()
+	{
+		return new static($this->connection, $this->grammar);
 	}
 
 	public function select()
@@ -218,6 +225,50 @@ class Query
 
 		return $query->from($table);
 	}*/
+
+	public function get()
+	{
+		return [];
+	}
+
+	public function first()
+	{
+		$query = clone $this;
+
+		$rows = $query->limit(1)->get();
+
+		return count($rows) > 0 ? $rows[0] : null;
+	}
+
+	public function all()
+	{
+		
+	}
+
+	public function last()
+	{
+		$countQuery = $this->newQuery();
+
+		$count = $countQuery->select('COUNT(*) AS c')->from($this)->pluck('c');
+
+		$offset = $count >= 1 ? $count - 1 : 0;
+
+
+		$query = clone $this;
+
+		return $query->limit(1)->offset($offset)->first();
+	}
+
+	public function column()
+	{
+		
+	}
+
+	public function row()
+	{
+		
+	}
+
 
 
 	public function __call($method, $args)

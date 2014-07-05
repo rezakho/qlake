@@ -94,6 +94,10 @@ class Grammar
 			//return 'FROM (' . $subQuery->toSql() . ') AS ' . $this->wrapperTable($subQuery->from) . ' ';
 			return 'FROM (' . $subQuery->toSql() . ')';
 		}
+		elseif ($query->from instanceof Query)
+		{
+			return 'FROM (' . $query->from->toSql() . ')';
+		}
 	}
 
 	public function compileJoins()

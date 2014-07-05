@@ -11,7 +11,7 @@ class Autoload
         'Route' => 'Framework\Iwan\Route',
         'Config' => 'Framework\Iwan\Config',
         'Cache' => 'Framework\Iwan\Cache',
-        'DB' => 'Framework\Database\Query',
+        'DB' => 'Framework\Iwan\DB',
     ];
     /**
      * Array of directories for searching classes.
