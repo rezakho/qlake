@@ -223,6 +223,6 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 
 	public function getQuery()
 	{
-		return new DB;
+		return DB::newQuery();
 	}
 }
