@@ -36,7 +36,7 @@ Route::get('test', function(){
 
 Route::get('/', function()
 {
-	echo DB::select('*')->from('test')->all();
+	echo DB::newQuery()->select('*')->from('test')->toSql();
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

@@ -22,7 +22,7 @@ class Container implements ArrayAccess
      */
 	public function singleton($name, $provider)
 	{
-		if ($this->providers[$name])
+		if (isset($this->providers[$name]))
 		{
 			throw new ClearException("Service '$name' is already set.", 2);
 		}
