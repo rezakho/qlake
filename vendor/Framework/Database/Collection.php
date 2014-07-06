@@ -7,16 +7,23 @@ use ArrayAccess;
 use Countable;
 use IteratorAggregate;
 
-class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, IteratorAggregate, /*JsonableInterface*/
+class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, IteratorAggregate/*, JsonableInterface*/
 {
 	protected $statement;
 
 	protected $items = [];
 
-	public function __construct(PDOStatement $statement)
+	protected $columns = [];
+
+
+	public function __construct(array $items = [], array $columns = [])
 	{
-		$this->statement = $statement;	
+		$this->items = $items;
+
+		$this->columns = $columns;$this->f = function(){};
 	}
+
+
 
 	public function offsetSet($offset, $value)
 	{

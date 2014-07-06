@@ -228,7 +228,12 @@ class Query
 
 	public function get()
 	{
-		return [];
+		$callback = $this->connection->executeSelect($this->toSql());
+		$items = $callback();
+
+		$collection = new Collection($items);
+
+		return $collection;
 	}
 
 	public function first()
@@ -242,17 +247,17 @@ class Query
 
 	public function all()
 	{
-		
+		$callback = $this->connection->executeSelect($this->toSql());
+		return $callback();
 	}
 
 	public function last()
 	{
 		$countQuery = $this->newQuery();
 
-		$count = $countQuery->select('COUNT(*) AS c')->from($this)->pluck('c');
+		$count = $countQuery->select('COUNT(*) AS _count')->from($this)->pluck('_count');
 
 		$offset = $count >= 1 ? $count - 1 : 0;
-
 
 		$query = clone $this;
 
@@ -269,6 +274,12 @@ class Query
 		
 	}
 
+	public function pluck($column)
+	{
+		$row = (array) $this->first();
+
+		return count($row) > 0 ? isset($row[$column]) ? $row[$column] : null : null;
+	}
 
 
 	public function __call($method, $args)

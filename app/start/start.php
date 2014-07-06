@@ -4,7 +4,7 @@ use Framework\Application;
 
 function trace($var)
 {
-	echo '<textarea style="width:900px;height:500px;border:none;" readonly>';
+	echo '<textarea style="width:100%;height:100%;border:none;" readonly>';
 	print_r($var);
 	exit;
 }

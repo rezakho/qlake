@@ -92,11 +92,11 @@ class Grammar
 			call_user_func_array($query->from, [$subQuery]);
 
 			//return 'FROM (' . $subQuery->toSql() . ') AS ' . $this->wrapperTable($subQuery->from) . ' ';
-			return 'FROM (' . $subQuery->toSql() . ')';
+			return 'FROM (' . $subQuery->toSql() . ') AS tmp';
 		}
 		elseif ($query->from instanceof Query)
 		{
-			return 'FROM (' . $query->from->toSql() . ')';
+			return 'FROM (' . $query->from->toSql() . ') AS tmp';
 		}
 	}
 

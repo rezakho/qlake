@@ -36,7 +36,7 @@ Route::get('test', function(){
 
 Route::get('/', function()
 {
-	echo DB::newQuery()->select('*')->from('test')->toSql();
+	trace(DB::select('*')->from('users')->where('id', 'between', [5,10])->get());
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

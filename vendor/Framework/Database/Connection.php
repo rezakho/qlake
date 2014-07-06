@@ -7,7 +7,9 @@ use Framework\Exception\ClearException;
 
 class Connection
 {
-	public $pdo;
+	protected $pdo;
+
+	protected $fetchStyle = PDO::FETCH_CLASS;
 
 	public function __construct(PDO $pdo = null, array $config = [])
 	{
@@ -44,6 +46,20 @@ class Connection
 	public function execute(PDOStatement $statement, array $parameters = [])
 	{
 		$statement->execute($parameters);
+	}
+
+	public function executeSelect($sql, $bindings = [])
+	{
+		return function()use($sql, $bindings)
+		{
+			$statement = $this->pdo->prepare($sql);
+
+			$statement->execute($bindings);
+
+			$items = $statement->fetchAll(PDO::FETCH_OBJ);
+
+			return $items;
+		};
 	}
 
 }
