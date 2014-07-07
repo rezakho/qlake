@@ -10,6 +10,8 @@ class HomeController
 
 		echo View::make('front.login', ['id' => $id]);
 
+		$items = DB::select('*, o')->from('users')->get();
+
 		//echo 'salam';
 
 	}

@@ -23,7 +23,7 @@ class Expression
 			}
 			elseif (is_object($arg0) && get_class($arg0) == 'Closure' )
 			{
-				$query = new Query;
+				$query = \DB::newQuery();
 
 				call_user_func($arg0, $query);
 
@@ -52,7 +52,7 @@ class Expression
 
 			if (is_object($value) && get_class($value) == 'Closure')
 			{
-				$query = new Query;
+				$query = \DB::newQuery();
 
 				call_user_func($value, $query);
 

@@ -5,6 +5,7 @@ namespace Framework\Database;
 use PDOStatement;
 use ArrayAccess;
 use Countable;
+use ArrayIterator;
 use IteratorAggregate;
 
 class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, IteratorAggregate/*, JsonableInterface*/

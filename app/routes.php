@@ -21,7 +21,7 @@ Route::group('/', function()
 	});
 });
 */
-Route::get('action/{name:\d+{}}', 'HomeController::indexAction')->name('profile.index');
+Route::get('action', 'HomeController')->name('profile.index');
 Route::get('سلام', 'HomeController');
 
 Route::get('test', function(){
@@ -36,7 +36,10 @@ Route::get('test', function(){
 
 Route::get('/', function()
 {
-	trace(DB::select('*')->from('users')->where('id', 'between', [5,10])->get());
+	$items = DB::select('*')->from('users')->get();
+
+	trace($items);
+
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

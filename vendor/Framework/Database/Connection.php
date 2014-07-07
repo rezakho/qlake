@@ -54,7 +54,13 @@ class Connection
 		{
 			$statement = $this->pdo->prepare($sql);
 
-			$statement->execute($bindings);
+			$res = $statement->execute($bindings);
+
+			if ($res == false)
+			{
+				throw new ClearException($statement->errorInfo()[2], 1);
+			}
+
 
 			$items = $statement->fetchAll(PDO::FETCH_OBJ);
 
