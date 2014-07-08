@@ -87,7 +87,7 @@ class Grammar
 		}
 		elseif ($query->from instanceof \Closure)
 		{
-			$subQuery = new Query;
+			$subQuery = $query->newQuery();
 
 			call_user_func_array($query->from, [$subQuery]);
 
