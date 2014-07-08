@@ -43,7 +43,7 @@ class MysqlConnector extends Connector
 		}
 		catch (PDOException $e)
 		{
-			throw new ClearException($e->getMessage(), 0);
+			throw new ClearException($e->getMessage());
 		}
 	}
 

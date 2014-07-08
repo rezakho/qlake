@@ -58,31 +58,7 @@ App::bind('db', function($app)
 
 	$connection = $connector->createConnection();
 
-	return $db = new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
-
-
-
-
-	/*$connections = Config::get('database.connections');
-	$default = Config::get('database.default');
-
-	$connection = $connections[$default];
-
-	$connectionString = "{$connection['driver']}:host={$connection['host']};dbname={$connection['database']}";
-
-	try 
-	{
-		$pdo = new PDO($connectionString, $connection['username'], $connection['password']);
-	}
-	catch (PDOException $e)
-	{
-		print "Error!: " . $e->getMessage() . "<br/>";
-		die();
-	}
-
-	$db = new Framework\Database\Query(new Framework\Database\Connection($pdo), new Framework\Database\Grammar);
-
-	return $db;*/
+	return new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
 });
 
 

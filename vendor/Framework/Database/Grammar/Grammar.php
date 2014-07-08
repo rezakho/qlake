@@ -3,6 +3,8 @@
 namespace Framework\Database\Grammar;
 
 use Framework\Database\Query;
+use Framework\Database\Expression;
+use Framework\Database\Operator;
 
 class Grammar
 {
@@ -242,8 +244,14 @@ class Grammar
 
 			$sql = $field . " $operator (" . implode(', ', $value) . ')';
 		}
-		elseif ($value instanceof Query)
+		elseif ($value instanceof Closure)
 		{
+			$query = $this->newQuery();
+
+			call_user_func($value, $query);
+
+			$value = $query;
+
 			$sql = $field . " $operator (" . $value->toSql() . ')';
 		}
 

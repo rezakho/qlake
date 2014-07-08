@@ -2,6 +2,8 @@
 
 namespace Framework\Database;
 
+use Closure;
+
 class Expression
 {
 	public $type;
@@ -21,7 +23,7 @@ class Expression
 
 				$this->clause = $arg0;
 			}
-			elseif (is_object($arg0) && get_class($arg0) == 'Closure' )
+			/*elseif ($arg0 instanceof Closure)
 			{
 				$query = \DB::newQuery();
 
@@ -30,7 +32,7 @@ class Expression
 				$this->type = 'builder';
 
 				$this->clause = $query;
-			}
+			}*/
 		}
 		// disjunct where by 1 operand
 		elseif (func_num_args() == 2)
@@ -50,13 +52,13 @@ class Expression
 
 			$this->type = 'disjunct';
 
-			if (is_object($value) && get_class($value) == 'Closure')
+			if ($value instanceof Closure)
 			{
-				$query = \DB::newQuery();
+				/*$query = \DB::newQuery();
 
 				call_user_func($value, $query);
 
-				$value = $query;
+				$value = $query;*/
 			}
 
 			$this->clause = compact('field', 'operator', 'value');
