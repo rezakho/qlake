@@ -6,7 +6,6 @@ use Closure;
 use PDO;
 use PDOException;
 use Framework\Exception\ClearException;
-use Framework\Database\Query;
 use Framework\Database\Connection;
 use Framework\Database\Grammar;
 
@@ -51,7 +50,7 @@ class Query
 		'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'
 	];
 
-	public function __construct(Connection $connection, Grammar $grammar)
+	public function __construct(Connection\Connection $connection, Grammar\Grammar $grammar)
 	{
 		$this->connection = $connection;
 

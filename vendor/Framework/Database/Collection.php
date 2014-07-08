@@ -21,7 +21,7 @@ class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, Iter
 	{
 		$this->items = $items;
 
-		$this->columns = $columns;$this->f = function(){};
+		$this->columns = $columns;
 	}
 
 

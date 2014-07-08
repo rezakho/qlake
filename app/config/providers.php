@@ -52,8 +52,18 @@ App::singleton('config', function($app)
  */
 App::bind('db', function($app)
 {
-	$app['t'] = 12;
-	$connections = Config::get('database.connections');
+	$cf = new Framework\Database\Connection\ConnectionFactory(Config::get('database'));
+
+	$connector = $cf->createConnector();
+
+	$connection = $connector->createConnection();
+
+	return $db = new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
+
+
+
+
+	/*$connections = Config::get('database.connections');
 	$default = Config::get('database.default');
 
 	$connection = $connections[$default];
@@ -72,7 +82,7 @@ App::bind('db', function($app)
 
 	$db = new Framework\Database\Query(new Framework\Database\Connection($pdo), new Framework\Database\Grammar);
 
-	return $db;
+	return $db;*/
 });
 
 

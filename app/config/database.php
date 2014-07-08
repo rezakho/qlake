@@ -6,11 +6,11 @@ return [
 
 	'connections' => [
 
-		/*'sqlite' => [
+		'sqlite' => [
 			'driver'   => 'sqlite',
 			'database' => __DIR__.'/../database/production.sqlite',
 			'prefix'   => '',
-		],*/
+		],
 
 		'mysql' => [
 			'driver'    => 'mysql',
@@ -23,7 +23,7 @@ return [
 			'prefix'    => '',
 		],
 
-		/*'pgsql' => [
+		'pgsql' => [
 			'driver'   => 'pgsql',
 			'host'     => 'localhost',
 			'database' => 'database',
@@ -41,7 +41,7 @@ return [
 			'username' => 'root',
 			'password' => '',
 			'prefix'   => '',
-		],*/
+		],
 
 	],
 ];

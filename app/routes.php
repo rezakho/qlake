@@ -39,7 +39,7 @@ Route::get('/', function()
 {
 	//(DB::select('*')->from('users')->limit(5)->get());
 
-	trace(DB::select('id')->from('users')->get());
+	trace(DB::select('id')->from('users')->limit(2)->get());
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

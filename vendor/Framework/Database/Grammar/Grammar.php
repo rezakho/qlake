@@ -1,6 +1,8 @@
 <?php
 
-namespace Framework\Database;
+namespace Framework\Database\Grammar;
+
+use Framework\Database\Query;
 
 class Grammar
 {
