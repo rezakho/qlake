@@ -22,6 +22,7 @@ Route::group('/', function()
 });
 */
 Route::get('action/{name:\d+{}}', 'HomeController::indexAction')->name('profile.index');
+
 Route::get('سلام', 'HomeController');
 
 Route::get('test', function(){
@@ -39,7 +40,6 @@ Route::get('/', function()
 	//(DB::select('*')->from('users')->limit(5)->get());
 
 	trace(DB::select('id')->from('users')->get());
-
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });
