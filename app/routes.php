@@ -36,7 +36,10 @@ Route::get('test', function(){
 
 Route::get('/', function()
 {
-	trace(DB::select('*')->from('users')->where('id', 'between', [5,10])->get());
+	//(DB::select('*')->from('users')->limit(5)->get());
+
+	trace(DB::select('id')->from('users')->get());
+
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

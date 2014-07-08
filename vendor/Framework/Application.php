@@ -248,8 +248,8 @@ echo htmlspecialchars($content);
 </pre>
 
 
-<script type="text/javascript" src="/framework/js/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="/framework/js/prettify.js"></script>
+<script type="text/javascript" src="/qlake/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="/qlake/js/prettify.js"></script>
 
 <script type="text/javascript">
 

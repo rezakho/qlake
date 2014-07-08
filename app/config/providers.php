@@ -8,7 +8,7 @@
 /**
  * Register router singleton provider.
  */
-App::singleton('router', function()
+App::singleton('router', function($app)
 {
 	return new Framework\Routing\Router;
 });
@@ -16,7 +16,7 @@ App::singleton('router', function()
 /**
  * Register request singleton provider.
  */
-App::singleton('request', function()
+App::singleton('request', function($app)
 {
 	return new Framework\Http\Request;
 });
@@ -24,7 +24,7 @@ App::singleton('request', function()
 /**
  * Register view singleton provider.
  */
-App::singleton('view', function()
+App::bind('view', function($app)
 {
 	$view = new Framework\View\View;
 
@@ -36,7 +36,7 @@ App::singleton('view', function()
 /**
  * Register config singleton provider.
  */
-App::singleton('config', function()
+App::singleton('config', function($app)
 {
 	$localPath = __DIR__;
 
@@ -50,8 +50,9 @@ App::singleton('config', function()
 /**
  * Register database PDo connection singleton provider.
  */
-App::singleton('db', function()
+App::bind('db', function($app)
 {
+	$app['t'] = 12;
 	$connections = Config::get('database.connections');
 	$default = Config::get('database.default');
 
@@ -78,7 +79,7 @@ App::singleton('db', function()
 /**
  * Register cache singleton provider.
  */
-App::singleton('cache', function()
+App::singleton('cache', function($app)
 {
 	$driverName = Config::get('cache.driver');
 	$className = "Framework\\Cache\\".ucfirst($driverName)."Cache";

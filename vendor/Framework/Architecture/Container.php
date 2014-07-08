@@ -3,6 +3,7 @@
 namespace Framework\Architecture;
 
 use ArrayAccess;
+use Closure;
 use Framework\Exception\ClearException;
 
 class Container implements ArrayAccess
@@ -15,55 +16,55 @@ class Container implements ArrayAccess
 	protected $providers = [];
 	
 	/**
-     * Register.
-     *
-     * @param Framework\Application
-     * @return void
-     */
+	 * Description
+	 * 
+	 * @param string $name 
+	 * @param Closure $provider 
+	 * @return null
+	 */
 	public function singleton($name, $provider)
 	{
-		if (isset($this->providers[$name]))
-		{
-			throw new ClearException("Service '$name' is already set.", 2);
-		}
-
-		$this->offsetSet($name, $provider);
+		$this->providers[$name] = ['provider' => $provider, 'type' => 'singleton'];
 	}
 
-
+	public function bind($name, $provider)
+	{
+		$this->providers[$name] = ['provider' => $provider, 'type' => 'instance'];
+	}
 
 	public function offsetSet($name, $provider)
 	{
-		$this->providers[$name] = $provider;
+		throw new ClearException("Use 'singleton' or 'bind' method for adding a service provider to Application.", 0);
 	}
-
-
 
 	public function offsetGet($name)
 	{
 		if (isset($this->providers[$name]))
 		{
-			if (get_class($this->providers[$name]) == 'Closure')
+			if ($this->providers[$name]['type'] == 'singleton')
 			{
-				$this->providers[$name] = $this->providers[$name]();
+				if ($this->providers[$name]['provider'] instanceof Closure)
+				{
+					$this->providers[$name]['provider'] = call_user_func_array($this->providers[$name]['provider'], [$this]);
 
-				return $this->providers[$name];
+					return $this->providers[$name]['provider'];
+				}
+				
+				return $this->providers[$name]['provider'];
 			}
-			
-			return $this->providers[$name];
+			elseif ($this->providers[$name]['type'] == 'instance')
+			{
+				return call_user_func_array($this->providers[$name]['provider'], [$this]);
+			}
 		}
 
-		throw new \InvalidArgumentException("Service $name not found!", 1);
+		throw new ClearException("Service $name does not exist!", 1);
 	}
-
-
 
 	public function offsetExists($name)
 	{
 		return isset($this->providers[$name]);
 	}
-
-
 
 	public function offsetUnset($name)
 	{

@@ -2,6 +2,15 @@
 
 namespace Framework\Database;
 
+use Closure;
+use PDO;
+use PDOException;
+use Framework\Exception\ClearException;
+use Framework\Database\Query;
+use Framework\Database\Connection;
+use Framework\Database\Grammar;
+
+
 class Query
 {
 	public $aggregate;
@@ -320,5 +329,85 @@ class Query
 
 				break;
 		}
+	}
+
+
+	/**/
+
+	public function on($connection)
+	{
+		
+	}
+
+	public function connection($connection)
+	{
+		$connections = Config::get('database.connections');
+
+		$default = Config::get('database.default');
+
+		$connection = $connections[$default];
+
+		$connectionString = "{$connection['driver']}:host={$connection['host']};dbname={$connection['database']}";
+
+		try 
+		{
+			$pdo = new PDO($connectionString, $connection['username'], $connection['password']);
+		}
+		catch (PDOException $e)
+		{
+			print "Error!: " . $e->getMessage() . "<br/>";
+			die();
+		}
+
+		$db = new Framework\Database\Query(new Framework\Database\Connection($pdo), new Framework\Database\Grammar);
+
+		return $db;
+	}
+
+	public function createConnection($connectionName = null)
+	{
+		if (is_null($connectionName))
+		{
+			$connectionName = $this->config['default'];
+		}
+
+		$connection = $this->config['connections'][$connectionName];
+
+		$connectionString = "{$connection['driver']}:host={$connection['host']};dbname={$connection['database']}";
+
+		try 
+		{
+			$pdo = new PDO($connectionString, $connection['username'], $connection['password']);
+		}
+		catch (PDOException $e)
+		{
+			throw new ClearException($e->getMessage(), 1);	
+		}
+
+		$db = new Query(new Connection($pdo), new Grammar);
+
+		return $db;
+	}
+
+	public function reconnect($connection = null)
+	{
+
+	}
+
+	public function disconnect($connection = null)
+	{
+		
+	}
+
+	/**/
+
+	public function before(Closure $callback)
+	{
+		
+	}
+
+	public function after(Closure $callback)
+	{
+		
 	}
 }
