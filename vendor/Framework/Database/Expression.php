@@ -23,16 +23,16 @@ class Expression
 
 				$this->clause = $arg0;
 			}
-			/*elseif ($arg0 instanceof Closure)
+			elseif ($arg0 instanceof Closure)
 			{
-				$query = \DB::newQuery();
+				//$query = \DB::newQuery();
 
-				call_user_func($arg0, $query);
+				//call_user_func($arg0, $query);
 
 				$this->type = 'builder';
 
-				$this->clause = $query;
-			}*/
+				$this->clause = $arg0;
+			}
 		}
 		// disjunct where by 1 operand
 		elseif (func_num_args() == 2)
@@ -52,14 +52,14 @@ class Expression
 
 			$this->type = 'disjunct';
 
-			if ($value instanceof Closure)
+			/*if ($value instanceof Closure)
 			{
-				/*$query = \DB::newQuery();
+				$query = \DB::newQuery();
 
 				call_user_func($value, $query);
 
-				$value = $query;*/
-			}
+				$value = $query;
+			}*/
 
 			$this->clause = compact('field', 'operator', 'value');
 		}

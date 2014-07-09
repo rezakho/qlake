@@ -22,7 +22,7 @@ App::singleton('request', function($app)
 });
 
 /**
- * Register view singleton provider.
+ * Register view instance provider.
  */
 App::bind('view', function($app)
 {
@@ -48,7 +48,7 @@ App::singleton('config', function($app)
 });
 
 /**
- * Register database PDo connection singleton provider.
+ * Register database query builder instance provider.
  */
 App::bind('db', function($app)
 {
@@ -58,7 +58,9 @@ App::bind('db', function($app)
 
 	$connection = $connector->createConnection();
 
-	return new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
+	$db = new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
+	 
+	return Query::$self = $db;
 });
 
 

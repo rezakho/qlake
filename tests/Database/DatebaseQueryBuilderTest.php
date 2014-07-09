@@ -240,7 +240,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 					'host'      => '127.0.0.1',
 					'database'  => 'test',
 					'username'  => 'root',
-					'password'  => 'ohkazer',
+					'password'  => '',
 					'charset'   => 'utf8',
 					'collation' => 'utf8_unicode_ci',
 					'prefix'    => '',

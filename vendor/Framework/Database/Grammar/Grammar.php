@@ -5,6 +5,7 @@ namespace Framework\Database\Grammar;
 use Framework\Database\Query;
 use Framework\Database\Expression;
 use Framework\Database\Operator;
+use Closure;
 
 class Grammar
 {
@@ -246,7 +247,7 @@ class Grammar
 		}
 		elseif ($value instanceof Closure)
 		{
-			$query = $this->newQuery();
+			$query = Query::$self->newQuery();
 
 			call_user_func($value, $query);
 
@@ -398,7 +399,7 @@ class Grammar
 
 			return $value;
 		}
-		elseif ($value instanceof Query)
+		else
 		{
 			return $value;
 		}

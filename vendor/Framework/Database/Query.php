@@ -38,6 +38,8 @@ class Query
 
 	public $lock;
 
+	public static $self;
+
 
 	protected $sql;
 
@@ -55,6 +57,8 @@ class Query
 		$this->connection = $connection;
 
 		$this->grammar = $grammar;
+
+		static::$self = $this;
 	}
 
 	public function newQuery()
