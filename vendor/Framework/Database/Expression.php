@@ -25,10 +25,6 @@ class Expression
 			}
 			elseif ($arg0 instanceof Closure)
 			{
-				//$query = \DB::newQuery();
-
-				//call_user_func($arg0, $query);
-
 				$this->type = 'builder';
 
 				$this->clause = $arg0;
@@ -51,15 +47,6 @@ class Expression
 			list($field, $operator, $value) = func_get_args();
 
 			$this->type = 'disjunct';
-
-			/*if ($value instanceof Closure)
-			{
-				$query = \DB::newQuery();
-
-				call_user_func($value, $query);
-
-				$value = $query;
-			}*/
 
 			$this->clause = compact('field', 'operator', 'value');
 		}
