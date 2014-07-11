@@ -33,6 +33,8 @@ class Connection
 				throw new ClearException($statement->errorInfo()[2], 1);
 			}
 
+			return $statement;
+
 			$items = $statement->fetchAll(PDO::FETCH_OBJ);
 
 			return $items;

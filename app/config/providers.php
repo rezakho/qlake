@@ -38,11 +38,11 @@ App::bind('view', function($app)
  */
 App::singleton('config', function($app)
 {
-	$localPath = __DIR__;
+	$defaultPath = __DIR__;
 
 	$config = new Framework\Config\Config();
 
-	$config->setLocalPath($localPath);
+	$config->setDefaultPath($defaultPath);
 
 	return $config;
 });
@@ -58,9 +58,7 @@ App::bind('db', function($app)
 
 	$connection = $connector->createConnection();
 
-	$db = new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
-	 
-	return Query::$self = $db;
+	return new Framework\Database\Query($connection, new Framework\Database\Grammar\MysqlGrammar);
 });
 
 

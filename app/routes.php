@@ -39,7 +39,9 @@ Route::get('/', function()
 {
 	//(DB::select('*')->from('users')->limit(5)->get());
 
-	trace(DB::select('id')->from('users')->limit(2)->get());
+	trace(DB::select('*')->from('users')->where('id', '>', '5')->pluck('id'));
+
+	//echo microtime() . '<br/>' . microtime(true);
 
 	//Cache::get('var',array('name'=>'ali'),20);
 });

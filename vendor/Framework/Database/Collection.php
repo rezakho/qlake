@@ -8,7 +8,7 @@ use Countable;
 use ArrayIterator;
 use IteratorAggregate;
 
-class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, IteratorAggregate/*, JsonableInterface*/
+class Collection implements  ArrayAccess, Countable, IteratorAggregate/*, JsonableInterface, ArrayableInterface,*/
 {
 	protected $statement;
 
@@ -16,12 +16,16 @@ class Collection implements /*ArrayableInterface,*/ ArrayAccess, Countable, Iter
 
 	protected $columns = [];
 
+	protected $time;
 
-	public function __construct(array $items = [], array $columns = [])
+
+	public function __construct(array $items = [], array $columns = [], $time)
 	{
 		$this->items = $items;
 
 		$this->columns = $columns;
+		
+		$this->time = $time;
 	}
 
 

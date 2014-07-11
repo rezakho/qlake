@@ -12,22 +12,24 @@ class Expression
 
 	public function create()
 	{
-		$arg0 = func_get_arg(0);
-
 		// Basic raw and closure where
 		if (func_num_args() == 1)
 		{
-			if (is_string($arg0))
+			$clause = func_get_arg(0);
+
+			// Raw where clause
+			if (is_string($clause))
 			{
 				$this->type = 'raw';
 
-				$this->clause = $arg0;
+				$this->clause = $clause;
 			}
-			elseif ($arg0 instanceof Closure)
+			// Nested AND - OR clauses
+			elseif ($clause instanceof Closure)
 			{
 				$this->type = 'builder';
 
-				$this->clause = $arg0;
+				$this->clause = $clause;
 			}
 		}
 		// disjunct where by 1 operand

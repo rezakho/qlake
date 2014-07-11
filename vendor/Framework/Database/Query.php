@@ -24,6 +24,8 @@ class Query
 
 	public $wheres;
 
+	public $bindings = [];
+
 	public $groups;
 
 	public $havings;
@@ -238,12 +240,21 @@ class Query
 		return $query->from($table);
 	}*/
 
-	public function get()
+	public function all()
 	{
-		$callback = $this->connection->executeSelect($this->toSql());
-		$items = $callback();
+		$callback = $this->connection->executeSelect($this->toSql(), ['12']);
 
-		$collection = new Collection($items);
+		$start =   time() + microtime(true);
+
+		$statement = $callback();
+
+		//trace($start);
+
+		$delay = time() + microtime(true) - $start;
+
+		$items = $statement->fetchAll(PDO::FETCH_OBJ);
+
+		$collection = new Collection($items, (count($items) > 0 ? array_keys((array)$items[0]) : []), $delay);
 
 		return $collection;
 	}
@@ -252,16 +263,11 @@ class Query
 	{
 		$query = clone $this;
 
-		$rows = $query->limit(1)->get();
+		$rows = $query->limit(1)->all();
 
 		return count($rows) > 0 ? $rows[0] : null;
 	}
 
-	public function all()
-	{
-		$callback = $this->connection->executeSelect($this->toSql());
-		return $callback();
-	}
 
 	public function last()
 	{

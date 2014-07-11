@@ -79,7 +79,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 	{
 		$config = $this->getConfigInstance();
 
-		$config->alias('alias', $config->getLocalPath());
+		$config->alias('alias', $config->getDefaultPath());
 
 		$value = $config->get('alias::database.default');
 
@@ -88,11 +88,11 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
 	public function getConfigInstance()
 	{
-		$localPath = __DIR__ . '/../../app/config';
+		$defaultPath = __DIR__ . '/../../app/config';
 
 		$config = new Framework\Config\Config();
 
-		$config->setLocalPath($localPath);
+		$config->setDefaultPath($defaultPath);
 
 		return $config;
 	}
