@@ -52,7 +52,7 @@ class Grammar
 
 			foreach ($query->columns as $value)
 			{
-				$columns[] = $this->parseFieldName($value);
+				$columns[] = $this->wrap($value);
 			}
 		}
 
@@ -61,7 +61,7 @@ class Grammar
 		return 'SELECT ' . ($query->distinct ? 'DISTINCT ' : '') . $columns;
 	}
 
-	public function parseFieldName($column)
+	public function wrap($column)
 	{
 		$column = trim($column);
 
@@ -70,7 +70,44 @@ class Grammar
 			return '*';
 		}
 
-		if (strpos($column, ' '))
+		if (strpos(strtolower($column), ' as ') !== false)
+		{
+			$segments = explode(' ', $column);
+
+			return $this->wrap($segments[0]).' AS '.$this->wrap($segments[2]);
+		}
+
+		if (preg_match('/\(.*\)/', $column) >= 1)
+		{
+			return $column;
+		}
+
+		if (strpos($column, '.') !== false)
+		{
+			$wrapped = array();
+
+			$segments = explode('.', $column);
+	
+			foreach ($segments as $key => $segment)
+			{
+				// if $segment is table
+				/*if ($key == 0 && count($segments) > 1)
+				{
+					$wrapped[] = $this->wrapTable($segment);
+				}
+				if
+				{
+					$wrapped[] = $this->wrapValue($segment);
+				}*/$wrapped[] = $this->wrapTable($segment);
+			}
+
+			return implode('.', $wrapped);
+		}
+
+		return sprintf($this->wrapper, $column);
+		
+trace($column);
+		/*if (strpos($column, ' '))
 		{
 			return $column;
 		}
@@ -81,7 +118,19 @@ class Grammar
 		else
 		{
 			return $this->wrapperColumn($column);
-		}
+		}*/
+	}
+
+	public function wrapTable($table)
+	{
+		return $this->wrap(/*$this->tablePrefix . */$table);
+	}
+
+	public function wrapValue($value)
+	{
+		/*if ($value === '*') return $value;
+
+		return "'".str_replace("'", "''", $value)."'";*/
 	}
 
 	public function compileFrom(Query $query)
@@ -136,7 +185,11 @@ class Grammar
 
 					case 'builder':
 
-						$sql[] = '(' . substr($this->compileWheres($where->clause), 6) . ')';
+						$query = Query::$self->newQuery();
+
+						call_user_func($where->clause, $query);
+
+						$sql[] = '(' . substr($this->compileWheres($query), 6) . ')';
 
 						break;
 					
@@ -166,11 +219,11 @@ class Grammar
 
 	public function compileBasicWhere($where)
 	{
-		$field    = $this->parseFieldName($where->clause['field']);
+		$field    = $this->wrap($where->clause['field']);
 
 		$operator = $this->correctOperator($where->clause['operator']);
 
-		$value    = $this->parseValue($where->clause['value']);
+		$value    = $where->clause['value'];
 
 		switch ($operator)
 		{
@@ -217,7 +270,7 @@ class Grammar
 				break;
 
 			default:
-				return $this->parseFieldName($field) . ' ' . $this->correctOperator($operator) . ' ' . $this->parseValue($value);
+				return $this->wrap($field) . ' ' . $this->correctOperator($operator) . ' ' . $this->parseValue($value);
 				break;
 		}
 	}
@@ -384,7 +437,7 @@ class Grammar
 	{
 		if (is_string($value))
 		{
-			return $value ;
+			return "'" . $value . "'";
 		}
 		elseif (is_numeric($value))
 		{

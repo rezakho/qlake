@@ -39,7 +39,15 @@ Route::get('/', function()
 {
 	//(DB::select('*')->from('users')->limit(5)->get());
 
-	trace(DB::select('*')->from('users')->where('id', '>', '5')->pluck('id'));
+	$db = DB::select('users.id as iid', 'count(*) as c')->from('users')->where('id', '=', '145')->or(function($query){
+		$query->where('id', '=', 3)->or('id', 'between', [10,15]);
+	});
+
+	trace($db->toSql());
+	trace($db->all());
+
+
+	//trace((object)"string");
 
 	//echo microtime() . '<br/>' . microtime(true);
 

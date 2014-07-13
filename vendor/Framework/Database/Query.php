@@ -84,12 +84,12 @@ class Query
 
 	public function where()
 	{
-		/*if ($this->block == 'where')
+		if ($this->block == 'where')
 		{
 			throw new ClearException("Just one 'Where' clause can be use.", 4);
 		}
 
-		$this->block = 'where';*/
+		$this->block = 'where';
 
 		$expression = new Expression();
 

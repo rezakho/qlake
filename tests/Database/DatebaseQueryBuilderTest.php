@@ -26,7 +26,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 
 		$sql = $query->select('family AS f')->from('table')->toSql();
 
-		$this->assertEquals('SELECT family AS f FROM `table`', $sql);
+		$this->assertEquals('SELECT `family` AS `f` FROM `table`', $sql);
 	}
 
 	public function testAggregatedColumnsSelect()
@@ -44,7 +44,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 
 		$sql = $query->select('id', 'family AS f', 'COUNT(id)', '*')->from('table')->toSql();
 
-		$this->assertEquals('SELECT `id`, family AS f, COUNT(id), * FROM `table`', $sql);
+		$this->assertEquals('SELECT `id`, `family` AS `f`, COUNT(id), * FROM `table`', $sql);
 	}
 
 	public function testDistinctSelect()
@@ -240,7 +240,7 @@ class DatabaseQueryBuilderTest extends PHPUnit_Framework_TestCase
 					'host'      => '127.0.0.1',
 					'database'  => 'test',
 					'username'  => 'root',
-					'password'  => 'ohkazer',
+					'password'  => '',
 					'charset'   => 'utf8',
 					'collation' => 'utf8_unicode_ci',
 					'prefix'    => '',
