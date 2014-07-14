@@ -43,7 +43,6 @@ Route::get('/', function()
 		$query->where('id', '=', 3)->or('id', 'between', [10,15]);
 	});
 
-	trace($db->toSql());
 	trace($db->all());
 
 
