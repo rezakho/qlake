@@ -21,7 +21,7 @@ Route::group('/', function()
 	});
 });
 */
-Route::get('action/{name:\d+{}}', 'HomeController::indexAction')->name('profile.index');
+Route::get('action/{name:\d+}', 'HomeController::indexAction')->name('profile.index');
 
 Route::get('سلام', 'HomeController');
 
@@ -39,7 +39,8 @@ Route::get('/', function()
 {
 	//(DB::select('*')->from('users')->limit(5)->get());
 
-	$db = DB::select('users.id as iid', 'count(*) as c')->from('users')->where('id', '=', '145')->or(function($query){
+	$db = DB::select('users.id as iid', 'count(*) as c')->from('users')->where('id', '=', '145')->or(function($query)
+	{
 		$query->where('id', '=', 3)->or('id', 'between', [10,15]);
 	});
 
