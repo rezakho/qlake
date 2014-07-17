@@ -39,19 +39,27 @@ Route::get('/', function()
 {
 	//(DB::select('*')->from('users')->limit(5)->get());
 
-	$db = DB::select('users.id as iid', 'count(*) as c')->from('users')->where('id', '=', '145')->or(function($query){
+	/*$db = DB::select('users.id as iid', 'count(*) as c')->from('users')->where('id', '=', '145')->or(function($query){
 		$query->where('id', '=', 3)->or('id', 'between', [10,15]);
 	});
 
 	trace($db->toSql());
 	trace($db->all());
 
-
+*/
 	//trace((object)"string");
 
 	//echo microtime() . '<br/>' . microtime(true);
 
 	//Cache::get('var',array('name'=>'ali'),20);
+
+	$service = Mockery::mock('service');
+	$service->shouldReceive('readTemp')->times(3)->andReturn(10, 12, 14);
+$service->readTemp();
+	//trace($service instanceof service ? 'true' : 'false');
+
+	echo View::make('index', ['id' => 55]);
+
 });
 
 

@@ -80,13 +80,13 @@ class View
 		}
 	}
 
-	public function make($name, array $data = null)
+	public function make($name, array $data = [])
 	{
 		//return '54454';
 		$viewFile = pathinfo($this->parsePath($name), PATHINFO_BASENAME);
 
 		$path = pathinfo($this->parsePath($name), PATHINFO_DIRNAME);
-
+//trace($path);
 		$loader = new \Twig_Loader_Filesystem($path);
 
 		$twig = new \Twig_Environment($loader, [
@@ -105,7 +105,7 @@ class View
 
 		};
 
-		return $f();
+		//return $f();
 		//trace($viewFile);
 
 		return $twig->render($viewFile, $data);
