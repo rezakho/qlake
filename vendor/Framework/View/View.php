@@ -110,4 +110,9 @@ class View
 
 		return $twig->render($viewFile, $data);
 	}
+
+	public function render($name, array $data = [])
+	{
+		return $this->make($name, $data);
+	}
 }
