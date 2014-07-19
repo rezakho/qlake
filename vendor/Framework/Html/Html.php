@@ -4,13 +4,10 @@ namespace Framework\Html;
 
 class Html{
 
-	protected $url;
-
 	protected $charset = 'UTF-8';
 
-	public function __construct($url = null)
+	public function __construct()
 	{
-		$this->url = $url;
 	}
 
 	public function getCharSet()
@@ -18,61 +15,41 @@ class Html{
 		return $this->charset;
 	}
 
-	public function style($url, $attributes = '')
+	public function mergeAttributes(array $current, array $new)
 	{
-
-		$defaults = array('href' => '', 'rel' => 'stylesheet', 'type' => 'text/css', 'media' => 'all');
-
-		$defaults['href'] = $url;
-
-		if (!empty($attributes))
-		{
-			foreach ((array)$attributes as $key => $value) 
-			{
-				$defaults[$key] = $value;
-			}
-		}
-
-		return '<link ' . $this->setAttribute($defaults) . '/>' . PHP_EOL;
+		return array_merge($current, $new);
 	}
 
-
-	public function script($url, $attributes = '')
+	public function style($url, $attributes = [])
 	{
-		$attributes['src'] = $url;
+		$defaults = ['href' => $url, 'rel' => 'stylesheet', 'type' => 'text/css', 'media' => 'all'];
 
-		return '<script ' . $this->setAttribute($attributes) . '></script>' . PHP_EOL;
+		$attrs = $this->mergeAttributes($defaults, $attributes);
+
+		return $this->createElement('link', $attrs);
 	}
 
-
-	public function favIcon($url = '')
+	public function script($url, $attributes = [])
 	{
-		return '<link rel="shortcut icon" href="'. $url .'">';
+		$defaults = ['src' => $url, 'type' => 'text/javascript'];
+
+		$attrs = $this->mergeAttributes($defaults, $attributes);
+
+		return $this->createElement('script', $attrs, null, true);
 	}
 
+	public function favicon($url)
+	{
+ 		return $this->createElement('link', ['href' => $url, 'rel' => 'shortcut icon']);
+	}
 
 	public function meta($attributs)
 	{
 		return $this->createElement('meta', $attributs);
 	}
 
-
-	public function setAttribute($attributs)
+	public function label($label, $attributs = [])
 	{
-		$html = [];
-
-		foreach ((array)$attributs as $key => $value)
-		{
-			$html[] = $key . '=' . '"' . $value . '"';
-		}
-
-		return implode($html, ' ');
-	}
-
-	public function label($name = '', $label = '', $attributs = [])
-	{
-		$attributs['for'] = $name;
-
 		return $this->createElement('label', $attributs, $label);
 	}
 
@@ -88,7 +65,7 @@ class Html{
 	}
 
 
-	public function password($name = '', $lable = '', $attributs = [])
+	public function password($name = '', $label = '', $attributs = [])
 	{
 		!empty($type) ? $attributs['type'] = $type : $attributs['type'] = 'password';
 
@@ -291,7 +268,7 @@ class Html{
 			}
 		}
 
-		$selectTag = '<select ' . $this->setAttribute($attributs) . '>' . PHP_EOL;
+		$selectTag = '<select ' . $this->createAttributeStrings($attributs) . '>' . PHP_EOL;
 
 		return $this->createElement('select', $attributs, implode($html, ''));
 	}
@@ -302,7 +279,7 @@ class Html{
 
 		$attributsTable = null;
 
-		isset($attributs) ? $attributsTable = $this->setAttribute($attributs) : null;
+		isset($attributs) ? $attributsTable = $this->createAttributeStrings($attributs) : null;
 
 		$html[] = '<table ' . $attributsTable . '>' . PHP_EOL;
 
@@ -449,20 +426,31 @@ class Html{
 		return implode($tagsArray, ' ');
 	}
 
-	public function createElement($tag, $attributs = [], $content = false, $closeTag = true)
+	public function createElement($tag, $attributs = [], $content = null, $closeTag = false)
 	{
-		$html = '<' . $tag . ' ' . $this->setAttribute($attributs);
+		$html = '<' . $tag . (empty($attributs) ? '' : ' ' . $this->createAttributeStrings($attributs));
 
-		if($content === false)
+		if($content === null)
 		{
-			return $closeTag || $this->simpleCloseTag ? $html . ' />' : $html . '>';
+			return (!$closeTag ? $html . ' />' : $html . '>' . '</' . $tag . '>') . PHP_EOL;
 		}
 		else
 		{
-			return $closeTag ? $html . '>' . $content . '</' . trim($tag) . '>' : $html . '>' . $content;
+			return ($html . '>' . $content . '</' . $tag . '>') . PHP_EOL;
 		}
 	}
 
+	public function createAttributeStrings($attributs)
+	{
+		$html = [];
+
+		foreach ((array)$attributs as $key => $value)
+		{
+			$html[] = $key . '=' . '"' . preg_replace("/(?<!\\\\)\"/", '\"', $value) . '"';
+		}
+
+		return implode($html, ' ');
+	}
 
 	public function decode($text)
 	{
