@@ -2,7 +2,7 @@
 
 namespace Framework\Html;
 
-class Html{
+class HtmlBuilder{
 
 	protected $charset = 'UTF-8';
 
@@ -15,16 +15,11 @@ class Html{
 		return $this->charset;
 	}
 
-	public function mergeAttributes(array $current, array $new)
-	{
-		return array_merge($current, $new);
-	}
-
 	public function style($url, $attributes = [])
 	{
 		$defaults = ['href' => $url, 'rel' => 'stylesheet', 'type' => 'text/css', 'media' => 'all'];
 
-		$attrs = $this->mergeAttributes($defaults, $attributes);
+		$attrs = array_merge($defaults, $attributes);
 
 		return $this->createElement('link', $attrs);
 	}
@@ -33,7 +28,7 @@ class Html{
 	{
 		$defaults = ['src' => $url, 'type' => 'text/javascript'];
 
-		$attrs = $this->mergeAttributes($defaults, $attributes);
+		$attrs = array_merge($defaults, $attributes);
 
 		return $this->createElement('script', $attrs, null, true);
 	}
@@ -446,7 +441,7 @@ class Html{
 
 		foreach ((array)$attributs as $key => $value)
 		{
-			$html[] = $key . '=' . '"' . preg_replace("/(?<!\\\\)\"/", '\"', $value) . '"';
+			$html[] = $key . '=' . '"' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
 		}
 
 		return implode($html, ' ');

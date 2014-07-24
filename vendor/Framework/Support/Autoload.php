@@ -12,6 +12,7 @@ class Autoload
         'Config' => 'Framework\Iwan\Config',
         'Cache' => 'Framework\Iwan\Cache',
         'DB' => 'Framework\Iwan\DB',
+        'Html' => 'Framework\Iwan\HtmlBuilder',
     ];
     /**
      * Array of directories for searching classes.
