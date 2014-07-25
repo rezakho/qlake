@@ -8,11 +8,10 @@ Route::get('/', function()
 Route::get('/', function()
 {
 
-	$db = DB::select('*')->from('users')->join(function($query){
-		$query->select('*')->from('role');
-	})->on('users.roleId', '=', 'role.id')->or('users.roleId', '=', 'role.id')->and(function($join){
-		$join->on('users.roleId', '=', 'role.id')->and('users.roleId', '=', 'role.id');
-	})->where('id', '>', 12);
+	$db = DB::select('*')->from('users')
+	->join('posts')->on('users.id', '=', 'posts.userId')
+	//->where('id', '>', 12)
+	;
 
 	trace($db->toSql());
 

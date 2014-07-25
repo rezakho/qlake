@@ -166,14 +166,14 @@ trace($column);
 			{
 				$table = $this->wrap($join['table']);
 			}
-			elseif ($join['table'] instanceof Closure)
+			/*elseif ($join['table'] instanceof Closure)
 			{
 				$query = Query::$self->newQuery();
 
 				call_user_func($join['table'], $query);
 
 				$table = '(' . $query->toSql() . ') AS tmp';
-			}
+			}*/
 
 			$sql[] = $join['type'] . ' ' . $table . ' ON ' . $this->compileJoinExpression($join['on']);
 		}
