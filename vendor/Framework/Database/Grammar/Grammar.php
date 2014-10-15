@@ -105,20 +105,6 @@ class Grammar
 		}
 
 		return sprintf($this->wrapper, $column);
-		
-trace($column);
-		/*if (strpos($column, ' '))
-		{
-			return $column;
-		}
-		elseif (strpos($column, '('))
-		{
-			return $column;
-		}
-		else
-		{
-			return $this->wrapperColumn($column);
-		}*/
 	}
 
 	public function wrapTable($table)
@@ -154,10 +140,155 @@ trace($column);
 		}
 	}
 
-	public function compileJoins()
+	public function compileJoins(Query $query)
 	{
-		
+		//trace($this->compileJoinExpression($query->joins[0]['on']));
+
+		$sql = [];
+
+		foreach ($query->joins as $join)
+		{
+			if (is_string($join['table']))
+			{
+				$table = $this->wrap($join['table']);
+			}
+			/*elseif ($join['table'] instanceof Closure)
+			{
+				$query = Query::$self->newQuery();
+
+				call_user_func($join['table'], $query);
+
+				$table = '(' . $query->toSql() . ') AS tmp';
+			}*/
+
+			$sql[] = $join['type'] . ' ' . $table . ' ON ' . $this->compileJoinExpression($join['on']);
+		}
+
+		return implode(" ", $sql);
 	}
+
+	public function compileLeftJoin($join)
+	{
+		return $join['type'] . ' ' . $this->wrap($join['table']) . ' ON ' . $this->compileJoinExpression($join['on']);
+	}
+
+	public function compileJoinExpression($expressions)
+	{
+		$sql = [];
+
+		foreach ($expressions as $expression)
+		{
+			if ($expression instanceof Expression)
+			{
+				switch ($expression->type)
+				{
+					case 'raw':
+
+						$sql[] = $this->compileRawConditionalExpression($expression);
+
+						break;
+
+					case 'disjunct':
+						
+						$sql[] = $this->compileDisjunctConditionalExpression($expression);
+
+						break;
+
+					case 'builder':
+
+						$query = Query::$self->newQuery();
+
+						call_user_func($expression->clause, $query);
+
+						$sql[] = '(' . $this->compileJoinExpression($query->joins[0]['on']) . ')';
+
+						break;
+					
+					default:
+						# code...
+						break;
+				}
+			}
+			elseif (($operator = $expression) instanceof Operator)
+			{
+				$sql[] = $operator->getType();
+			}
+		}
+
+		return implode(' ', $sql);
+	}
+
+	public function compileRawConditionalExpression($expression)
+	{
+		return $expression->clause;
+	}
+
+	public function compileDisjunctConditionalExpression($expression)
+	{
+		$field    = $this->wrap($expression->clause['field']);
+
+		$operator = $this->correctOperator($expression->clause['operator']);
+
+		$value    = $expression->clause['value'];
+
+		switch ($operator)
+		{
+			case '=':
+			case '<':
+			case '>':
+			case '<=':
+			case '>=':
+			case '<>':
+			case '!=':		
+				return $this->compileComparisonOperationsWhere($field, $operator, $value);
+				break;
+
+			case 'IS NULL':
+				return $this->compileIsNullWhere($field, $operator, $value = null);
+				break;
+
+			case 'IS NOT NULL':
+				return $this->compileIsNotNullWhere($field, $operator, $value = null);
+				break;
+
+			case 'IN':
+				return $this->compileInWhere($field, $operator, $value);
+				break;
+
+			case 'NOT IN':
+				return $this->compileNotInWhere($field, $operator, $value);
+				break;
+
+			case 'LIKE':
+				return $this->compileLikeWhere($field, $operator, $value);
+				break;
+
+			case 'NOT LIKE':
+				return $this->compileNotLikeWhere($field, $operator, $value);
+				break;
+
+			case 'BETWEEN':
+				return $this->compileBetweenWhere($field, $operator, $value);
+				break;
+
+			case 'NOT BETWEEN':
+				return $this->compileNotBetweenWhere($field, $operator, $value);
+				break;
+
+			default:
+				return $this->wrap($field) . ' ' . $this->correctOperator($operator) . ' ' . $this->parseValue($value);
+				break;
+		}
+	}
+
+	/*public function compileBuilderConditionalExpression(Expression $expression)
+	{
+		$query = Query::$self->newQuery();
+
+		call_user_func($expression->clause, $query);
+
+		$sql[] = '(' . $this->compileExpressions($query) . ')';
+	}*/
 
 	public function compileWheres(Query $query)
 	{
@@ -211,6 +342,8 @@ trace($column);
 	{
 		return $where->clause;
 	}
+
+
 
 	public function correctOperator($operator)
 	{

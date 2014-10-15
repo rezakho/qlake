@@ -76,3 +76,12 @@ App::singleton('cache', function($app)
 	return $cache;
 });
 
+/**
+ * Register html singleton provider.
+ */
+App::singleton('html', function($app)
+{
+	return new Framework\Html\Html();
+});
+
+

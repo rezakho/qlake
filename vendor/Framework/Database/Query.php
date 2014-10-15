@@ -84,11 +84,11 @@ class Query
 
 	public function where()
 	{
-		if ($this->block == 'where')
+		/*if ($this->block == 'where')
 		{
 			throw new ClearException("Just one 'Where' clause can be use.", 4);
 		}
-
+		*/
 		$this->block = 'where';
 
 		$expression = new Expression();
@@ -138,6 +138,52 @@ class Query
 		return $this->from($table);
 	}
 
+	public function join($table)
+	{
+		$this->joins[] = ['type' => 'INNER JOIN', 'table' => $table, 'on' => null];
+
+		return $this;
+	}
+
+	public function on()
+	{
+		$this->block = 'join';
+
+		$expression = new Expression();
+
+		call_user_func_array([$expression, 'create'], func_get_args());
+
+		$this->joins[count($this->joins)-1 >= 0 ? count($this->joins)-1 : 0]['on'][] = $expression;
+
+		return $this;
+	}
+
+	public function andJoin()
+	{
+		$this->joins[count($this->joins)-1]['on'][] = new Operator('AND');
+
+		$expression = new Expression();
+
+		call_user_func_array([$expression, 'create'], func_get_args());
+
+		$this->joins[count($this->joins)-1 >= 0 ? count($this->joins)-1 : 0]['on'][] = $expression;
+
+		return $this;
+	}
+
+	public function orJoin()
+	{
+		$this->joins[count($this->joins)-1]['on'][] = new Operator('OR');
+
+		$expression = new Expression();
+
+		call_user_func_array([$expression, 'create'], func_get_args());
+
+		$this->joins[count($this->joins)-1 >= 0 ? count($this->joins)-1 : 0]['on'][] = $expression;
+
+		return $this;
+	}
+
 	public function orderBy($field)
 	{
 		$this->orders[] = ['field' => $field, 'type' => 'ASC'];
@@ -166,11 +212,11 @@ class Query
 
 	public function having()
 	{
-		if ($this->block == 'having')
+		/*if ($this->block == 'having')
 		{
 			throw new ClearException("Just one 'Having' clause can be use.", 4);
 		}
-
+		*/
 		$this->block = 'having';
 
 		$expression = new Expression();
@@ -248,8 +294,6 @@ class Query
 
 		$statement = $callback();
 
-		//trace($start);
-
 		$delay = time() + microtime(true) - $start;
 
 		$items = $statement->fetchAll(PDO::FETCH_OBJ);
@@ -282,23 +326,12 @@ class Query
 		return $query->limit(1)->offset($offset)->first();
 	}
 
-	public function column()
-	{
-		
-	}
-
-	public function row()
-	{
-		
-	}
-
 	public function pluck($column)
 	{
 		$row = (array) $this->first();
 
 		return count($row) > 0 ? isset($row[$column]) ? $row[$column] : null : null;
 	}
-
 
 	public function __call($method, $args)
 	{
@@ -314,8 +347,12 @@ class Query
 				{
 					return call_user_func_array([$this, 'andHaving'], $args);
 				}
+				elseif ($this->block == 'join')
+				{
+					return call_user_func_array([$this, 'andJoin'], $args);
+				}
 
-				throw new ClearException("'and' method must be used after 'where, having' methods.", 4);
+				throw new ClearException("'and' method must be used after 'where, having, on' methods.", 4);
 
 				break;
 
@@ -329,8 +366,12 @@ class Query
 				{
 					return call_user_func_array([$this, 'orHaving'], $args);
 				}
+				elseif ($this->block == 'join')
+				{
+					return call_user_func_array([$this, 'orJoin'], $args);
+				}
 
-				throw new ClearException("'or' method must be used after 'where, having' methods.", 4);
+				throw new ClearException("'or' method must be used after 'where, having, on' methods.", 4);
 
 				break;
 
@@ -343,11 +384,11 @@ class Query
 
 	/**/
 
-	public function on($connection)
+	/*public function on($connection)
 	{
 		
 	}
-
+*/
 	public function connection($connection)
 	{
 		$connections = Config::get('database.connections');
