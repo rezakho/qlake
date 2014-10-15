@@ -105,20 +105,6 @@ class Grammar
 		}
 
 		return sprintf($this->wrapper, $column);
-		
-trace($column);
-		/*if (strpos($column, ' '))
-		{
-			return $column;
-		}
-		elseif (strpos($column, '('))
-		{
-			return $column;
-		}
-		else
-		{
-			return $this->wrapperColumn($column);
-		}*/
 	}
 
 	public function wrapTable($table)
@@ -189,7 +175,7 @@ trace($column);
 	public function compileJoinExpression($expressions)
 	{
 		$sql = [];
-//trace($expressions);
+
 		foreach ($expressions as $expression)
 		{
 			if ($expression instanceof Expression)
