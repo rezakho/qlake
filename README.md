@@ -9,3 +9,11 @@ The beta release coming soon!
 #### Contributing
 
 Frok the "master" branch, edit it and send pull requests to "master" branch again.
+
+```php
+function test()
+{
+  return true;
+}
+
+```
